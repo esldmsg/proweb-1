@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 from typing import List, Optional
-from fastapi import Depends, FastAPI, HTTPException, status
+from fastapi import Depends, FastAPI, HTTPException, status, File, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
@@ -13,22 +14,43 @@ from .database import SessionLocal, engine
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
+
+origins = [
+    
+    "http://localhost:3000"
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+
+
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 SECRET_KEY = "dd2750f47f3ea7f68bd4c73a33739d2c11ed41a43771061d79e8413babed160a"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
+
+
 class Item(BaseModel):
+    id:Optional[int] = None
     title: str
     description:str
     price: int
+   
 
     class Config:
             orm_mode = True
 
 class TokenData(BaseModel):
-    username: Optional[str] = None
+    id: Optional[int] = None
 
 def get_db():
     db = SessionLocal()
@@ -82,16 +104,16 @@ async def get_current_user( token: str = Depends(oauth2_scheme), db: Session = D
     )
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        username: str = payload.get("sub")
-        if username is None:
+        id : int = payload.get("sub")
+        if id is None:
             raise credentials_exception
-        token_data = TokenData(username=username)
+        token_data = TokenData(id=id)
     except JWTError:
         raise credentials_exception
-    user = db.query(models.User).filter(models.User.username==token_data.username).first()
-    if user is None:
+    id = db.query(models.User).filter(models.User.username==token_data.id).first()
+    if id is None:
         raise credentials_exception
-    return user
+    return id
     
 
 async def get_current_active_user(current_user: User = Depends(get_current_user)):
@@ -136,7 +158,7 @@ async def signIn_user(form_data:OAuth2PasswordRequestForm = Depends(),db: Sessio
     
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
-    data={"sub": user.username, "sub2": user.id},expires_delta=access_token_expires
+    data={"sub": user.id},expires_delta=access_token_expires
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
@@ -187,7 +209,28 @@ def read_items(user_id:int, skip: int = 0, limit: int = 100, db: Session = Depen
         raise HTTPException(status_code=400, detail="User does not exist")
 
     db_item = db.query(models.Item).filter(models.Item.owner_id==user_id).first()
-    if db_user is None:
+    if db_item is None:
         raise HTTPException(status_code=400, detail="You are not ment to access this page")
    
     return db.query(models.Item).filter(models.Item.owner_id==user_id).all()
+
+
+@app.post('/uploadfile')
+async def upload(file:UploadFile = File(...)):
+    contents = await file.read()
+    print(contents)
+    
+
+@app.post("/admin/items", response_model=Item)
+def create_item_for_all_user( 
+     item:Item, db: Session = Depends(get_db)):
+    new_item = models.Item(title=item.title, price=item.price, description= item.description, owner_id=3)
+    db.add(new_item)
+    db.commit()
+    db.refresh(new_item)
+    return new_item
+
+
+@app.get("/allitems/", response_model=List[Item])
+def read_items_for_all_user(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    return db.query(models.Item).all()
