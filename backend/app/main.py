@@ -44,6 +44,7 @@ class Item(BaseModel):
     title: str
     description:str
     price: int
+    # owner_id:Optional[int] = None
    
 
     class Config:
@@ -231,6 +232,32 @@ def create_item_for_all_user(
     return new_item
 
 
+
+@app.delete("/delete/{item_id}")
+def delete_item_for_all(
+     item_id:int, db: Session = Depends(get_db)):
+
+    db_check_for_item_id = db.query(models.Item).filter(models.Item.id==item_id).first()
+    if db_check_for_item_id is None :
+        raise HTTPException(status_code=400, detail="item does not exist")
+
+    db_check_for_user_id = db.query(models.User.id).filter(models.User.id==3).first()
+    if db_check_for_user_id :
+        db_check_for_owner_id = db.query(models.Item.owner_id).filter(models.Item.id==item_id).first()
+        if  db_check_for_user_id == db_check_for_owner_id :
+            db_item_to_be_deleted = db.query(models.Item).filter(models.Item.id==item_id).first()
+            db.delete( db_item_to_be_deleted)
+            db.commit()
+            return {
+                "message":f" item with item_id {item_id} deleted"
+            }
+        else:
+              raise HTTPException(status_code=400, detail="You are not ment to delete this item")
+    else :  return {
+                "message":f" user does not exist"
+            }
+
+
 @app.get("/allitems/", response_model=List[Item])
 def read_items_for_all_user(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    return db.query(models.Item).all()
+   return db.query(models.Item).filter(models.Item.owner_id==3).all()

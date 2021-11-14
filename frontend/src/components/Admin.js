@@ -1,5 +1,6 @@
 import react, { useState } from 'react'
 import { Form, Button, Card } from 'react-bootstrap'
+import AdminStore from './AdminStore'
 
 
 
@@ -44,10 +45,11 @@ const Admin = () => {
                 }) 
             });
         response.json().then(response => {
-            console.log(response.status)
+            
             if (response.status === 'ok') {
                 alert("Product added successfully")
             } else {
+                console.log(response.status)
                 alert("Failed to add product")
             }
         });
@@ -60,6 +62,9 @@ const Admin = () => {
 
 
     return (
+    <div>
+        <AdminStore>
+        </AdminStore>
         <Card>
             <Card.Body>
                 <Form onSubmit = {postData}>
@@ -83,6 +88,7 @@ const Admin = () => {
                 </Form>
             </Card.Body>
         </Card>
+    </div>
     );
 }
 
