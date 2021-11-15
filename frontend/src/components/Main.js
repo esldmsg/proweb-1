@@ -9,7 +9,9 @@ import {
 } from "react-router-dom";
 import Admin from "./Admin";
 import Store from "./Store";
-// import Cart from "./Cart";
+import Cart from "./Cart";
+import useCart from 'react-use-cart';
+
 // import Login from "./Login";
 
 
@@ -27,7 +29,7 @@ function Main() {
                 <Store />
               </Route>
               <Route path="/Cart">
-                {/* <Cart /> */}
+                <Cart />
               </Route>
               <Route path="/Login">
                 {/* <Login /> */}

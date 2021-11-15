@@ -33,12 +33,15 @@ const handleDelete = (id) => {
             return resp.json()
             })
             .then(result => {
+                console.log(result)
                 if (result.status === 'ok') {
                     const filteredProducts = products.data.filter((product) => product.id !== id);
                     setProducts({ data: [...filteredProducts] })
                     alert("Product deleted")
                 } else {
-                    alert("Product deletion failed")
+                    const filteredProducts = products.data.filter((product) => product.id !== id);
+                    setProducts({ data: [...filteredProducts] })
+                    alert("Product deletion failed...")
             }
         })
     }

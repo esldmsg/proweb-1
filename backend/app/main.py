@@ -45,13 +45,13 @@ class Item(BaseModel):
     description:str
     price: int
     # owner_id:Optional[int] = None
-   
-
     class Config:
-            orm_mode = True
+        orm_mode = True
 
 class TokenData(BaseModel):
-    id: Optional[int] = None
+    username: Optional[str] = None
+    class Config:
+            orm_mode = True
 
 def get_db():
     db = SessionLocal()
@@ -60,21 +60,48 @@ def get_db():
     finally:
         db.close()
 class User(BaseModel):
+    id: Optional[int] = None
     name: str
-    email: Optional[str] = None
-    is_active: Optional[bool] = None
+    email: str
+    is_active:bool
+    class Config:
+        orm_mode = True
 
 class Token(BaseModel):
     access_token: str
     token_type: str
+    class Config:
+            orm_mode = True
+
+class UserInDB(User):
+    hashed_password : str
 
 def verify_password(password, hashed_password):
     return pwd_context.verify(password, hashed_password)
+
+# def verify_password(plain_password, hashed_password):
+#     return pwd_context.verify(plain_password, hashed_password)
        
 
 
 def get_password_hash(password):
     return pwd_context.hash(password)
+
+
+# async def get_user( username: str, db: Session = Depends(get_db)):
+#     user = db.query(models.User).filter(models.User.username==username).first()
+#     if user:
+#         return user
+#     return{"message":"error"}
+
+# def authenticate_user( username: str, password: str):
+#     user = get_user( username)
+#     if not user:
+#         return False
+#     if not verify_password(password, user.hashed_password):
+#         return False
+#     return user
+
 
 
 def authenticate_user(password, hashed_password:int):
@@ -97,7 +124,8 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     return encoded_jwt
 
 
-async def get_current_user( token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+
+async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db) ):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -105,16 +133,17 @@ async def get_current_user( token: str = Depends(oauth2_scheme), db: Session = D
     )
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        id : int = payload.get("sub")
-        if id is None:
+        username: str = payload.get("sub")
+        if username is None:
             raise credentials_exception
-        token_data = TokenData(id=id)
+        token_data = TokenData(username=username)
     except JWTError:
         raise credentials_exception
-    id = db.query(models.User).filter(models.User.username==token_data.id).first()
-    if id is None:
+    user = db.query(models.User).filter(models.User.username==token_data.username).first()
+    if user is None:
         raise credentials_exception
-    return id
+    return user
+
     
 
 async def get_current_active_user(current_user: User = Depends(get_current_user)):
@@ -136,7 +165,7 @@ def create_user(username,email, password, db: Session = Depends(get_db)):
     return {
         "message":f" user successfully created"
     }
-    
+
 @app.post("/token", response_model=Token)
 async def signIn_user(form_data:OAuth2PasswordRequestForm = Depends(),db: Session = Depends(get_db)):
     activeUser=form_data.username
@@ -148,7 +177,6 @@ async def signIn_user(form_data:OAuth2PasswordRequestForm = Depends(),db: Sessio
             headers={"WWW-Authenticate": "Bearer"},
             )
     password = form_data.password
-    # verify = verify_password(password, user.hashed_password)
     if not verify_password(password, user.hashed_password) :
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -159,7 +187,7 @@ async def signIn_user(form_data:OAuth2PasswordRequestForm = Depends(),db: Sessio
     
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
-    data={"sub": user.id},expires_delta=access_token_expires
+    data={"sub": user.username},expires_delta=access_token_expires
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
@@ -197,11 +225,6 @@ def delete_item_for_user(
     else :  return {
                 "message":f" user does not exist"
             }
-   
-       
-    
-    # db.refresh(new_item)
-   
 
 @app.get("/items/{user_id}", response_model=List[Item])
 def read_items(user_id:int, skip: int = 0, limit: int = 100, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
@@ -261,3 +284,7 @@ def delete_item_for_all(
 @app.get("/allitems/", response_model=List[Item])
 def read_items_for_all_user(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
    return db.query(models.Item).filter(models.Item.owner_id==3).all()
+
+@app.get("/users/me")
+async def read_users_me(current_user : User = Depends(get_current_active_user)):
+    return current_user.id

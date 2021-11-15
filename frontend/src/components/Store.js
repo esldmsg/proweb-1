@@ -2,11 +2,14 @@ import react, {useEffect, useContext} from 'react'
 import { Table } from 'react-bootstrap'
 import {ProductContext} from '../ProductContext';
 import ProductRow from './ProductRow';
+import ItemCard from './ItemCard'
+
 
 
 
 const Store = () => {
     const [products, setProducts]  =  useContext(ProductContext)
+    
 
 
 
@@ -22,36 +25,24 @@ const Store = () => {
     }, [])
     console.log(products.data)
       return(
-          
-            <div className ="row">
-                <div className = "col-sm-10 col-xm-12 mr-auto ml-auto mt-4 mb-4">
-                    <Table striped bordered hover>
-                        <thead>
-                            <tr>
-                                <th>id</th>
-                                <th>Product Name</th>
-                                <th>Product Description</th>
-                                <th>Unit Price</th>
-                                
-                                
-                            </tr>
-                        </thead>
-                        <tbody>
-                        {products.data.map((product) => (
-                            <ProductRow
-                                    id = {product.id}
-                                    title = {product.title}
-                                    description = {product.description}
-                                    price = {product.price}
-                                    key={product.id}
-                            />
-                        ))}
-                        </tbody>
-                    </Table>
+        
+            <section className="py-4 container">
+                <div className = "row justify-content-center">
+                    {products.data.map((item, index) => (
+                                <ItemCard
+                                        id = {item.id}
+                                        title = {item.title}
+                                        description = {item.description}
+                                        price = {item.price}
+                                        key={index}
+                                        item={item}
+                                />
+                    ))}
                 </div>
-            </div>
-            
-
+            </section>
+           
+        
+      
          
       );
 }

@@ -5,11 +5,12 @@ import { Navbar, Container, Nav, Badge } from 'react-bootstrap';
 import Main from "./components/Main";
 import {ProductContext} from './ProductContext';
 import {ProductProvider} from './ProductContext';
+import {CartProvider} from 'react-use-cart';
 
 function App() {
   
   return (
-   
+     <CartProvider>
       <ProductProvider>
         <Navbar bg="primary" variant="dark" className ="nav-grid">
             <Container >
@@ -26,6 +27,7 @@ function App() {
   
         <Main />
       </ProductProvider>
+      </CartProvider>
     
   );
 }

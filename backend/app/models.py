@@ -18,7 +18,7 @@ class User(Base):
     hashed_password = Column(String, unique=True, index=True)
     is_active = Column(Boolean, default=False)
 
-    items = relationship("Item", back_populates="owner")
+    items = relationship("Item", back_populates="owner", uselist=False)
     def __repr__ (self):
          return f"User username={self.username}, with email {self.email}, with hashed_password={self.hashed_password}"
 
