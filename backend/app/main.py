@@ -79,30 +79,8 @@ class UserInDB(User):
 def verify_password(password, hashed_password):
     return pwd_context.verify(password, hashed_password)
 
-# def verify_password(plain_password, hashed_password):
-#     return pwd_context.verify(plain_password, hashed_password)
-       
-
-
 def get_password_hash(password):
     return pwd_context.hash(password)
-
-
-# async def get_user( username: str, db: Session = Depends(get_db)):
-#     user = db.query(models.User).filter(models.User.username==username).first()
-#     if user:
-#         return user
-#     return{"message":"error"}
-
-# def authenticate_user( username: str, password: str):
-#     user = get_user( username)
-#     if not user:
-#         return False
-#     if not verify_password(password, user.hashed_password):
-#         return False
-#     return user
-
-
 
 def authenticate_user(password, hashed_password:int):
     
@@ -192,20 +170,19 @@ async def signIn_user(form_data:OAuth2PasswordRequestForm = Depends(),db: Sessio
     return {"access_token": access_token, "token_type": "bearer"}
 
     
-@app.post("/users/{user_id}/items/", response_model=Item)
-def create_item_for_user( 
-    user_id: int, item:Item, current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db), ):
-    db_item = db.query(models.Item).filter(models.Item.title==item.title).first()
+@app.post("/users/items/", response_model=Item)
+def create_item_for_user( item:Item, current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db), ):
+    #db_item = db.query(models.Item).filter(models.Item.title==item.title).first()
+    user_id = current_user.id
     new_item = models.Item(title=item.title, price=item.price, description= item.description, owner_id=user_id)
     db.add(new_item)
     db.commit()
     db.refresh(new_item)
     return new_item
 
-@app.delete("/delete/{user_id}/{item_id}")
-def delete_item_for_user(
-    user_id: int, item_id:int, db: Session = Depends(get_db)):
-
+@app.delete("/delete/{item_id}")
+def delete_item_for_user( item_id:int, db: Session = Depends(get_db),  current_user: User = Depends(get_current_active_user)):
+    user_id = current_user.id
     db_check_for_item_id = db.query(models.Item).filter(models.Item.id==item_id).first()
     if db_check_for_item_id is None :
         raise HTTPException(status_code=400, detail="item does not exist")
@@ -226,8 +203,9 @@ def delete_item_for_user(
                 "message":f" user does not exist"
             }
 
-@app.get("/items/{user_id}", response_model=List[Item])
-def read_items(user_id:int, skip: int = 0, limit: int = 100, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
+@app.get("/items/", response_model=List[Item])
+def read_items(skip: int = 0, limit: int = 100, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
+    user_id = current_user.id
     db_user = db.query(models.User).filter(models.User.id==user_id).first()
     if db_user is None:
         raise HTTPException(status_code=400, detail="User does not exist")
