@@ -1,6 +1,5 @@
 import React, {useContext} from "react";
 import {ProductProvider} from '../ProductContext';
-import {ProductContext} from '../ProductContext';
 import {
   BrowserRouter as Router,
   Switch,
@@ -15,7 +14,6 @@ import Login from "./Login";
 
 
 function Main() {
-  const [products, setProducts] = useContext(ProductContext)
     return(
       
        <Router>
@@ -33,7 +31,7 @@ function Main() {
               <Route path="/Register">
                 <Register />
               </Route>
-              <Route path="/Login">
+              <Route exact path="/">
                 <Login />
               </Route>
           </Switch>

@@ -3,7 +3,7 @@ import React, { createContext, useEffect, useState } from "react";
 export const UserContext = createContext();
 
 export const UserProvider = (props) => {
-  const [token, setToken] = useState(localStorage.getItem("pass"));
+  const [token, setToken] = useState(localStorage.getItem("passToken"));
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -20,7 +20,7 @@ export const UserProvider = (props) => {
       if (!response.ok) {
         setToken(null);
       }
-      localStorage.setItem("pass", token);
+      localStorage.setItem("passToken", token);
     };
     fetchUser();
   }, [token]);

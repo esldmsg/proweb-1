@@ -6,6 +6,7 @@ import {UserContext} from '../UserContext'
 
 
 
+
 const Login = () => {
     const [errorMessage, setErrorMessage] = useState("");
     const [, setToken] = useContext(UserContext);
@@ -16,26 +17,28 @@ const Login = () => {
 
     const cleanFormData = ()=> {
         setUsername("");
-        setEmail("");
+       // setEmail("");
         setPassword("");
        
     };
     const submitLoginForm = async () => {
         const requestOptions = {
             method: "POST",
-            headers: {
-                "content-Type": "application/json"
-            },
-            body: JSON.stringify({username: username, email: email, password:password }),
+            headers: {"Content-Type": "application/x-www-form-urlencoded"},
+            body: JSON.stringify(
+                `grant_type=&username=${username}&password=${password}&scope=&client_id=&client_secret=`
+            ),
         };
-        const response = await fetch ("http://localhost:8000/signUp/{username}/{email}/{password}", requestOptions);
+        const response = await fetch ("http://localhost:8000/token", requestOptions);
         const data = await response.json()
         console.log(data)
         if(!response.ok){
             setErrorMessage(data.detail)
         }else{
-            setErrorMessage("you have Successfully Register");
+            setErrorMessage("you have Successfully Login");
+            setToken(data.access_token)
             cleanFormData();
+           
               
          
         }
@@ -43,13 +46,14 @@ const Login = () => {
     }
      const handleSubmit = (e) =>{
          e.preventDefault();
+         submitLoginForm();
      };
 
     return(
     <div>
         <form onSubmit ={handleSubmit}>
              <div class="container">
-                <h1>Login</h1>s
+                <h1>Login</h1>
                 <hr/>
                 
                 <label for="username"><b>Username</b></label>
@@ -67,11 +71,11 @@ const Login = () => {
                 
                 <ErrorMessage message={errorMessage}/>
                 {/* <p>By creating an account you agree to our <a href="#">Terms & Privacy</a>.</p> */}
-                <button type="submit" class="registerbtn">Register</button>
+                <button type="submit" class="registerbtn">Login</button>
             </div>
 
             <div class="container signin">
-                <p>Yet to have an account? <a href="#">Register</a>.</p>
+                <p>Yet to have an account? <a href="Register">Register</a>.</p>
             </div>
         </form>
     </div>   

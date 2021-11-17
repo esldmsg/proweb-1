@@ -14,20 +14,6 @@ const Register = () => {
     const [password, setPassword] = useState("");
     const [confirm_password, setConfirm_password] = useState("");
 
-    // const [register, setRegister] = useState(
-    //      {
-    //         username: "",
-    //         email: "",
-    //         password: "",
-    //         confirm_password: "",
-    //      }
-    // )
-
-    // const updateForm = (e) => {
-    //     setRegister(
-    //         {...register, [e.target.name] : e.target.value}
-    //     )
-    // }
     const cleanFormData = ()=> {
         setUsername("");
         setEmail("");
@@ -70,7 +56,7 @@ const Register = () => {
     <div>
         <form onSubmit ={handleSubmit}>
              <div class="container">
-                <h1>Register</h1>s
+                <h1>Register</h1>
                 <p>Please fill in this form to create an account.</p>
                 <hr/>
                 
@@ -93,7 +79,7 @@ const Register = () => {
             </div>
 
             <div class="container signin">
-                <p>Already have an account? <a href="#">Sign in</a>.</p>
+                <p>Already have an account? <a href="/">Sign in</a>.</p>
             </div>
         </form>
     </div>   
