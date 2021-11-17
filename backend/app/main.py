@@ -234,7 +234,7 @@ def create_item_for_all_user(
 
 
 
-@app.delete("/delete/{item_id}")
+@app.delete("/delete/admin/{item_id}")
 def delete_item_for_all(
      item_id:int, db: Session = Depends(get_db)):
 

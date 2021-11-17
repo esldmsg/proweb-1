@@ -1,11 +1,13 @@
-import react, {useEffect, useContext} from 'react'
+import react, {useEffect, useContext, useState} from 'react'
 import { Table } from 'react-bootstrap'
 import {ProductContext} from '../ProductContext';
 import AdminRow from './AdminRow';
+import ErrorMessage from './ErrorMessage'
 
 
 
 const AdminStore = () => {
+    const [errorMessage, setErrorMessage] = useState("");
     const [products, setProducts]  =  useContext(ProductContext)
 
 
@@ -20,36 +22,56 @@ const AdminStore = () => {
             setProducts({"data": [...results] })
         })
     }, [])
-    console.log(products.data)
+    // console.log(products.data)
 
-const handleDelete = (id) => {
-        fetch("http://localhost:8000/delete/" + id, {
+    const handleDelete = async (id) => {
+        const requestOptions = {
             method: "DELETE",
             headers: {
-                accept: 'application/json'
-            }
-        })
-            .then(resp => {
-            return resp.json()
-            })
-            .then(result => {
-                console.log(result)
-                if (result.status === 'ok') {
-                    const filteredProducts = products.data.filter((product) => product.id !== id);
-                    setProducts({ data: [...filteredProducts] })
-                    alert("Product deleted")
-                } else {
-                    const filteredProducts = products.data.filter((product) => product.id !== id);
-                    setProducts({ data: [...filteredProducts] })
-                    alert("Product deletion failed...")
-            }
-        })
+                "content-Type": "application/json"
+            },
+        };
+        const response = await fetch ("http://localhost:8000/delete/admin/" + id, requestOptions);
+        console.log(response)
+        if(!response.ok){
+            setErrorMessage("somethin went wrong")
+        }else{
+            const filteredProducts = products.data.filter((product) => product.id !== id);
+            setProducts({ data: [...filteredProducts] })
+            setErrorMessage("Items successfully Deleted");
+        }
+
     }
 
+// const handleDelete = (id) => {
+//         fetch("http://localhost:8000/delete/" + id, {
+//             method: "DELETE",
+//             headers: {
+//                 accept: 'application/json'
+//             }
+//         })
+//             .then(resp => {
+//             return resp.json()
+//             })
+//             .then(result => {
+//                 // console.log(result)
+//                 if (result.status === 'ok') {
+//                     const filteredProducts = products.data.filter((product) => product.id !== id);
+//                     setProducts({ data: [...filteredProducts] })
+//                     alert("Product deleted")
+//                 } else {
+//                     const filteredProducts = products.data.filter((product) => product.id !== id);
+//                     setProducts({ data: [...filteredProducts] })
+//                     alert("Product deletion failed...")
+//             }
+//         })
+//     }
+
       return(
-          
+            
             <div className ="row">
                 <div className = "col-sm-10 col-xm-12 mr-auto ml-auto mt-4 mb-4">
+                <ErrorMessage message={errorMessage}/>
                     <Table striped bordered hover>
                         <thead>
                             <tr>

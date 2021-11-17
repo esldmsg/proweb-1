@@ -15,6 +15,8 @@ function App() {
         <Navbar bg="primary" variant="dark" className ="nav-grid">
             <Container >
             <Nav className="me-auto">
+            <Nav.Link href="Register" style={{color:'white'}}>Register</Nav.Link>
+            <Nav.Link href="Login" style={{color:'white'}}>Login</Nav.Link>
             <Nav.Link href="Admin" style={{color:'white'}}>Admin</Nav.Link>
             <Nav.Link href="Store" style={{color:'white'}}>Store</Nav.Link>
             <Nav.Link href="Cart" style={{color:'white'}}>Cart</Nav.Link>

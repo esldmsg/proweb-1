@@ -10,9 +10,8 @@ import {
 import Admin from "./Admin";
 import Store from "./Store";
 import Cart from "./Cart";
-import useCart from 'react-use-cart';
-
-// import Login from "./Login";
+import Register from "./Register"
+import Login from "./Login";
 
 
 function Main() {
@@ -31,8 +30,11 @@ function Main() {
               <Route path="/Cart">
                 <Cart />
               </Route>
+              <Route path="/Register">
+                <Register />
+              </Route>
               <Route path="/Login">
-                {/* <Login /> */}
+                <Login />
               </Route>
           </Switch>
          </ProductProvider>
