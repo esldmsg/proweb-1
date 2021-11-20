@@ -33,6 +33,7 @@ class Item(Base):
     title = Column(String, index=True)
     description = Column(String, index=True)
     price = Column(Integer, index=True)
+    rate = Column(Integer, index=True)
     owner_id = Column(Integer, ForeignKey("users.id"))
 
     owner = relationship("User", back_populates="items")

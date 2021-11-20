@@ -44,6 +44,7 @@ class Item(BaseModel):
     title: str
     description:str
     price: int
+    rate:Optional[int] = 0
     # owner_id:Optional[int] = None
     class Config:
         orm_mode = True
@@ -170,7 +171,7 @@ async def signIn_user(form_data:OAuth2PasswordRequestForm = Depends(),db: Sessio
     return {"access_token": access_token, "token_type": "bearer"}
 
     
-@app.post("/users/items/", response_model=Item)
+@app.post("/users/items/{title}/{price}/{description}", response_model=Item)
 def create_item_for_user( item:Item, current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db), ):
     #db_item = db.query(models.Item).filter(models.Item.title==item.title).first()
     user_id = current_user.id
@@ -226,7 +227,7 @@ async def upload(file:UploadFile = File(...)):
 @app.post("/admin/items", response_model=Item)
 def create_item_for_all_user( 
      item:Item, db: Session = Depends(get_db)):
-    new_item = models.Item(title=item.title, price=item.price, description= item.description, owner_id=3)
+    new_item = models.Item(title=item.title, price=item.price, description= item.description, owner_id=4)
     db.add(new_item)
     db.commit()
     db.refresh(new_item)
@@ -242,7 +243,7 @@ def delete_item_for_all(
     if db_check_for_item_id is None :
         raise HTTPException(status_code=400, detail="item does not exist")
 
-    db_check_for_user_id = db.query(models.User.id).filter(models.User.id==3).first()
+    db_check_for_user_id = db.query(models.User.id).filter(models.User.id==4).first()
     if db_check_for_user_id :
         db_check_for_owner_id = db.query(models.Item.owner_id).filter(models.Item.id==item_id).first()
         if  db_check_for_user_id == db_check_for_owner_id :
@@ -261,7 +262,7 @@ def delete_item_for_all(
 
 @app.get("/allitems/", response_model=List[Item])
 def read_items_for_all_user(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-   return db.query(models.Item).filter(models.Item.owner_id==3).all()
+   return db.query(models.Item).filter(models.Item.owner_id==4).all()
 
 @app.get("/users/me")
 async def read_users_me(current_user : User = Depends(get_current_active_user)):

@@ -31,7 +31,7 @@ function Main() {
               <Route path="/Register">
                 <Register />
               </Route>
-              <Route exact path="/">
+              <Route exact path="/Login">
                 <Login />
               </Route>
           </Switch>
