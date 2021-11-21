@@ -1,6 +1,9 @@
 import react,{useState, useEffect, useContext} from 'react'
 import ErrorMessage from './ErrorMessage';
-import {UserContext} from '../UserContext'
+import {UserContext} from '../UserContext';
+import {Container, Row, Col } from 'react-bootstrap';
+
+
 
 
 
@@ -50,10 +53,13 @@ const Login = () => {
      };
 
     return(
-    <div>
-        <form onSubmit ={handleSubmit}>
-             <div class="container">
-                <h1>Login</h1>
+    <Container>
+        <Row>
+            <Col></Col>
+            <Col xs={12} style={{ marginTop:"50px"}}>
+            <form onSubmit ={handleSubmit}>
+           
+                <h1  style={{textAlign:"center"}}>Login</h1>
                 <hr/>
                 
                 <label for="username"><b>Username</b></label>
@@ -71,14 +77,22 @@ const Login = () => {
                 
                 <ErrorMessage message={errorMessage}/>
                 {/* <p>By creating an account you agree to our <a href="#">Terms & Privacy</a>.</p> */}
-                <button type="submit" class="registerbtn">Login</button>
-            </div>
-
+               
+                <Row>
+                    <Col></Col>
+                    <Col xs={2}><button type="submit" class="registerbtn">Register</button></Col>
+                    <Col></Col>
+                </Row>
             <div class="container signin">
-                <p>Yet to have an account? <a href="Register">Register</a>.</p>
+                <p>Yet to have an account? <a href="Register">Login</a>.</p>
             </div>
         </form>
-    </div>   
+
+            </Col>
+            <Col></Col>
+        </Row>
+    </Container>
+      
     );
 }
 export default Login;

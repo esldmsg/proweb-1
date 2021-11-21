@@ -1,5 +1,5 @@
 import react, {useEffect, useContext, useState} from 'react'
-import { Table } from 'react-bootstrap'
+import { Table, Container, Row, Col } from 'react-bootstrap'
 import {ProductContext} from '../ProductContext';
 import AdminRow from './AdminRow';
 import ErrorMessage from './ErrorMessage'
@@ -69,8 +69,8 @@ const AdminStore = () => {
 
       return(
             
-            <div className ="row">
-                <div className = "col-sm-10 col-xm-12 mr-auto ml-auto mt-4 mb-4">
+            
+                <div>
                 <ErrorMessage message={errorMessage}/>
                     <Table striped bordered hover>
                         <thead>
@@ -96,11 +96,7 @@ const AdminStore = () => {
                         ))}
                         </tbody>
                     </Table>
-                </div>
-            </div>
-            
-
-         
+                    </div>
       );
 }
 

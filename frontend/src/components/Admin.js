@@ -1,5 +1,5 @@
 import react, { useState } from 'react'
-import { Form, Button, Card } from 'react-bootstrap'
+import { Form, Button, Card, Container, Row, Col} from 'react-bootstrap'
 import AdminStore from './AdminStore'
 import ErrorMessage from './ErrorMessage'
 
@@ -51,49 +51,8 @@ const Admin = () => {
 
     }
 
-    // const postData = async (e) => {
-    //     e.preventDefault();
-    //     console.log(productInfo)
-    
-    //     const url = "http://localhost:8000/admin/items"
-
-    //     const response = await fetch(
-    //         url, {
-    //             method: 'POST',
-    //             mode: 'cors',
-    //             cache: 'no-cache',
-    //             credentials: 'same-origin', 
-    //             headers: {
-    //             'Content-Type': 'application/json'
-    //             },
-    //             redirect: 'follow',
-    //             referrerPolicy: 'no-referrer', 
-    //             body: JSON.stringify({
-                   
-    //                 "title": productInfo['title'],
-    //                 "description": productInfo['description'],
-    //                 "price": productInfo['price'],
-    //             }) 
-    //         });
-    //     response.json().then(response => {
-            
-    //         if (response.status === 'ok') {
-    //             alert("Product added successfully")
-    //         } else {
-    //             console.log(response.status)
-    //             alert("Failed to add product")
-    //         }
-    //     });
-    //     setProductInfo({
-    //         title: "",
-    //         description: "",
-    //         price: "",
-    //     });
-    // }
-
-
     return (
-    <div>
+    <Container>
         <AdminStore>
         </AdminStore>
         <Card>
@@ -113,14 +72,14 @@ const Admin = () => {
                         <Form.Control type="number" name="price" value={productInfo.price} onChange = {updateForm}  placeholder="Price" />
                     </Form.Group>
 
-                    <Button variant="primary" type="submit">
-                        Submit
+                    <Button style={{marginTop:"10px"}} variant="primary" type="submit">
+                        Add to Store
                     </Button>
                     <ErrorMessage message={errorMessage}/>
                 </Form>
             </Card.Body>
         </Card>
-    </div>
+    </Container>
     );
 }
 

@@ -1,8 +1,8 @@
 import react, {useEffect, useContext, useState} from 'react'
-import { Table } from 'react-bootstrap'
-import {UserCartContext} from '../UserCartContext';
+import { Table, Container, Row, Col } from 'react-bootstrap'
+import './cart.css'
 import {UserContext} from '../UserContext';
-import CartRow from './CartRow';
+
 import ErrorMessage from './ErrorMessage';
 
 
@@ -102,9 +102,9 @@ const Cart = () => {
       }
 
       const handleQuantityDecrease = (index, price, rate) => {
-        if (rate == 0 ){
+        if (rate <= 0  ){
             let newItems = [...carts]
-            newItems[index].rate = 0;
+            newItems[index].rate = "";
             setCarts(newItems);
 		}else{
         let newItems = [...carts]
@@ -123,10 +123,11 @@ const Cart = () => {
          console.log(totalItem)
      }
       return(
-            
-            <div className ="row">
+          <div>
+            <Container>
+            <Row>
                 
-                <div className = "col-sm-10 col-xm-12 mr-auto ml-auto mt-4 mb-4">
+                <Col>
                 <ErrorMessage message={errorMessage}/>
                 
                     <Table striped bordered hover>
@@ -152,20 +153,21 @@ const Cart = () => {
                                    <td>{cart.price}</td>
                                    <td>{cart.rate}</td>
                                    <td>
+                                   <button onClick={() => handleQuantityIncrease(index, cart.price, cart.rate)}  className = "btn btn-outline-info btn-sm mr-2">+</button>
+                                   <button onClick={() => handleQuantityDecrease(index, cart.price, cart.rate)}  className = "btn btn-outline-info btn-sm mr-2">-</button>
                                    <button onClick={() => handleDelete(cart.id)}  className = "btn btn-outline-danger btn-sm mr-2">Delete</button> 
-                                   <button onClick={() => handleQuantityIncrease(index, cart.price, cart.rate)}  className = "btn btn-outline-danger btn-sm mr-2">+</button>
-                                   <button onClick={() => handleQuantityDecrease(index, cart.price, cart.rate)}  className = "btn btn-outline-danger btn-sm mr-2">-</button>
                                    </td>
 
                                </tr>
                     ))}
                         </tbody>
-                        <div>TOTAL = {totalItem}</div>
+                        
                     </Table>
-                </div>
+                    <div>TOTAL = {totalItem}</div> <button className = "btn btn-outline-info btn-sm mr-2"> Pay </button>
+                </Col>
+            </Row>
+            </Container>
             </div>
-            
-            
 
          
       );

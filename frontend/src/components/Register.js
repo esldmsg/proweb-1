@@ -1,4 +1,5 @@
-import react,{useState, useEffect, useContext} from 'react'
+import react,{useState, useEffect, useContext} from 'react';
+import {Container, Row, Col } from 'react-bootstrap';
 import ErrorMessage from './ErrorMessage';
 import {UserContext} from '../UserContext'
 
@@ -53,11 +54,14 @@ const Register = () => {
      };
 
     return(
-    <div>
-        <form onSubmit ={handleSubmit}>
-             <div class="container">
-                <h1>Register</h1>
-                <p>Please fill in this form to create an account.</p>
+    <Container>
+        <Row>
+            <Col ></Col>
+           
+            <Col xs={12} style={{ marginTop:"50px"}}>
+            <form onSubmit ={handleSubmit}>
+                <h1 style={{textAlign:"center"}}>Register</h1>
+                <p style={{textAlign:"center"}}>Please fill in this form to create an account.</p>
                 <hr/>
                 
                 <label for="username"><b>Username</b></label>
@@ -74,15 +78,23 @@ const Register = () => {
                 <hr/>
                 
                 <ErrorMessage message={errorMessage}/>
-                <p>By creating an account you agree to our <a href="#">Terms & Privacy</a>.</p>
-                <button type="submit" class="registerbtn">Register</button>
-            </div>
+                <Row>
+                    <Col></Col>
+                    <Col xs={2}><button type="submit" class="registerbtn">Register</button></Col>
+                    <Col></Col>
+                </Row>
+            
 
             <div class="container signin">
                 <p>Already have an account? <a href="/">Sign in</a>.</p>
             </div>
         </form>
-    </div>   
+        
+            </Col>
+            
+            <Col ></Col>
+        </Row>
+    </Container>   
     );
 }
 export default Register;

@@ -1,0 +1,34 @@
+.app-background {
+    background-color: #bee3ff;
+    display: flex;
+    /* justify-content: center;
+    align-items: center; */
+    min-height: 100vh;
+  }
+  .main-container {
+    background-color: #ec645b;
+    width: 500px;
+    height: min-content;
+    border-radius: 5px;
+    padding: 20px;
+    box-shadow: 10px 10px 26px 0px rgba(0, 0, 0, 0.35);
+  }
+
+  .total {
+    float: right;
+    padding: 10px;
+  }
+
+  button {
+    background: transparent;
+    border: none;
+    margin: 3px;
+    color: #201b1b;
+  }
+  button:focus {
+    outline: 0;
+  }
+  
+  button:hover {
+    cursor: pointer;
+  }

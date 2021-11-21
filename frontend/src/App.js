@@ -26,10 +26,10 @@ function App() {
                  </Nav>
                     </div>
               }
-            {!token && <div>
+            {token && <div>
               <Nav className="me-auto">
                 <Nav.Link href="Register" style={{color:'white'}}>Register</Nav.Link>
-                <Nav.Link href="Login" style={{color:'white'}}>Login</Nav.Link>
+                {/* <Nav.Link href="Login" style={{color:'white'}}>Login</Nav.Link> */}
               </Nav>
             </div>
             } 
