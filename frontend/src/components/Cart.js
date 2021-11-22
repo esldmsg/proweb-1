@@ -142,10 +142,10 @@ const Cart = () => {
                 "Content-Type":"application/json",
                 Authorization: "Bearer " + token,
             },
-            body: JSON.stringify([...carts]),
+            body:[...carts],
              
         };
-        const response = fetch ("http://localhost:8000/shipped{title}/{price}/{rate}/{description}/", requestOptions1);
+        const response = fetch ("http://localhost:8000/shipped/{title}/{price}/{rate}/{description}/", requestOptions1);
         const data =  response.json()
         console.log(data)
         if(!response.ok){
@@ -199,7 +199,7 @@ const Cart = () => {
                                </tr>
                     ))}
                         </tbody>
-                        
+                        <script src="https://js.paystack.co/v1/inline.js"></script>
                     </Table>
                     <div>TOTAL = {totalItem}</div> <button onClick={() => {initializePayment(onSuccess, onClose)
             }} className = "btn btn-outline-info btn-sm mr-2"> Pay </button>
