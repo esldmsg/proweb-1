@@ -6,12 +6,17 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from typing import List, Optional
+from fastapi.responses import RedirectResponse
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from . import  models
 from .database import SessionLocal, engine
-
 models.Base.metadata.create_all(bind=engine)
+
+
+from .baseapi import BaseAPI
+from . import utils
+from .errors import InvalidDataError
 
 app = FastAPI()
 
@@ -129,6 +134,64 @@ async def get_current_active_user(current_user: User = Depends(get_current_user)
     if current_user.is_active:
         raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
+
+
+@app.post("/payment123w")
+class Transaction(BaseAPI):
+    def initialize(
+        self, email, amount, plan=None, reference=None, channel=None, metadata=None
+    ):
+        """
+        Initialize a transaction and returns the response
+        args:
+        email -- Customer's email address
+        amount -- Amount to charge
+        plan -- optional
+        Reference -- optional
+        channel -- channel type to use
+        metadata -- a list if json data objects/dicts
+        """
+        amount = utils.validate_amount(amount)
+
+        if not email:
+            raise InvalidDataError("Customer's Email is required for initialization")
+
+        url = self._url("/initialize")
+        payload = {
+            "email": email,
+            "amount": amount,
+        }
+
+        if plan:
+            payload.update({"plan": plan})
+        if channel:
+            payload.update({"channels": channel})
+        if reference:
+            payload.update({"reference": reference})
+        if metadata:
+            payload = payload.update({"metadata": {"custom_fields": metadata}})
+
+        return self._handle_request("POST", url, payload)
+
+    def verify(self, reference):
+            """
+            Verifies a transaction using the provided reference number
+            args:
+            reference -- reference of the transaction to verify
+            """
+
+            reference = str(reference)
+            url = self._url("/transaction/verify/{}".format(reference))
+            return self._handle_request("GET", url)
+
+@app.get("/payment")
+async def paymode(  current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db), response_class=RedirectResponse, status_code=302 ):
+       return current_user
+
+
+
+
+
 
 
 @app.post("/signUp/{username}/{email}/{password}")

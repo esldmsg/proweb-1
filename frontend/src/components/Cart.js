@@ -2,7 +2,7 @@ import react, {useEffect, useContext, useState} from 'react'
 import { Table, Container, Row, Col } from 'react-bootstrap'
 import './cart.css'
 import {UserContext} from '../UserContext';
-
+import { usePaystackPayment } from 'react-paystack';
 import ErrorMessage from './ErrorMessage';
 
 
@@ -19,6 +19,7 @@ const Cart = () => {
         description:"",
     }
     ]);
+   
    
     
 
@@ -104,7 +105,7 @@ const Cart = () => {
       const handleQuantityDecrease = (index, price, rate) => {
         if (rate <= 0  ){
             let newItems = [...carts]
-            newItems[index].rate = "";
+            newItems[index].rate = 0;
             setCarts(newItems);
 		}else{
         let newItems = [...carts]
@@ -122,6 +123,49 @@ const Cart = () => {
          setTotalItem(totalItem);
          console.log(totalItem)
      }
+
+
+     const pay = async () => {
+        //console.log(title, price, description)
+        const requestOptions = {
+            method: "GET",
+            headers:{
+                "Content-Type":"application/json",
+                Authorization: "Bearer " + token,
+                'cache-control':'no-cache'
+            },
+             
+        };
+        const response = await fetch ("http://localhost:8000/payment/", requestOptions);
+        const data = await response.json()
+        console.log(data)
+        if(!response.ok){
+            setErrorMessage(data.detail)
+        }else{
+            setErrorMessage("Payment successfully ");
+        }
+
+    }
+    // const config = {
+    //     reference: (new Date()).getTime().toString(),
+    //     email: "user@example.com",
+    //     amount: totalItem *100,
+    //     publicKey: 'pk_test_a2a08405b2f3f7f1046e010e11b4c0bfbbb7024b',
+    //     };
+        
+    //     // you can call this function anything
+    //     const onSuccess = (reference) => {
+    //     // Implementation for whatever you want to do with reference and after success call.
+    //     console.log(reference);
+    //     };
+    
+    //     // you can call this function anything
+    //     const onClose = () => {
+    //     // implementation for  whatever you want to do when the Paystack dialog closed.
+    //     console.log('closed')
+    //     }
+  
+    //     const initializePayment = usePaystackPayment(config);
       return(
           <div>
             <Container>
@@ -135,19 +179,15 @@ const Cart = () => {
                         <thead>
                             
                             <tr>
-                                <th>id</th>
                                 <th>Product Name</th>
                                 <th>Product Description</th>
                                 <th>Unit Price</th>
-                                <th>Rate</th>
-                                
-                                
+                                <th>Rate</th>    
                             </tr>
                         </thead>
                         <tbody>
                         {carts.map((cart, index) => (
                                <tr>
-                                   <td>{cart.id}</td>
                                    <td>{cart.title}</td>
                                    <td>{cart.description}</td>
                                    <td>{cart.price}</td>
@@ -163,7 +203,7 @@ const Cart = () => {
                         </tbody>
                         
                     </Table>
-                    <div>TOTAL = {totalItem}</div> <button className = "btn btn-outline-info btn-sm mr-2"> Pay </button>
+                    <div>TOTAL = {totalItem}</div> <button onClick={pay} className = "btn btn-outline-info btn-sm mr-2"> Pay </button>
                 </Col>
             </Row>
             </Container>

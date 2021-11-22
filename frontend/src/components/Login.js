@@ -80,11 +80,11 @@ const Login = () => {
                
                 <Row>
                     <Col></Col>
-                    <Col xs={2}><button type="submit" class="registerbtn">Register</button></Col>
+                    <Col xs={2}><button type="submit" class="registerbtn">Login</button></Col>
                     <Col></Col>
                 </Row>
             <div class="container signin">
-                <p>Yet to have an account? <a href="Register">Login</a>.</p>
+                <p>Yet to have an account? <a href="Register">Register</a>.</p>
             </div>
         </form>
 
