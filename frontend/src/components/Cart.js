@@ -42,7 +42,7 @@ const Cart = () => {
                 setErrorMessage("Could not ge Cart");
             }else{
                 const data = await response.json();
-                console.log(data)
+                //console.log(data)
                // setCarts({"data": [...data]})
                setCarts([...data])
             
@@ -70,26 +70,6 @@ const Cart = () => {
         }
 
     }
-   
-    // const increase = async (price) => {
-    //        //const newItems = [carts];
-    //       // newItems[id].cart.price++;
-    //       let rate = price + price
-    //        setCarts(rate)
-    //        console.log(rate)
-
-        // rate = price + rate
-        // setRate(rate)
-        // quantity = quantity + 1
-        // setQuantity(quantity)
-        // let x = localStorage.getItem("money")
-        //  total = parseInt(+price + +x)
-        //  localStorage.setItem("money", total);
-        //  setTotal(total)
-        //  //console.log(total)
-       // }
-   
-      
        console.log(carts)
        //let price = carts.price+carts.price
        //console.log(carts.price)
@@ -125,47 +105,65 @@ const Cart = () => {
      }
 
 
-     const pay = async () => {
-        //console.log(title, price, description)
-        const requestOptions = {
-            method: "GET",
+    //  const pay = async () => {
+    //     //console.log(title, price, description)
+    //     const requestOptions = {
+    //         method: "GET",
+    //         headers:{
+    //             "Content-Type":"application/json",
+    //             Authorization: "Bearer " + token,
+    //             'cache-control':'no-cache'
+    //         },
+          
+    //     };
+    //     const response = await fetch ("http://localhost:8000/payment/", requestOptions);
+    //     const data = await response.json()
+    //     console.log(data)
+    //     if(!response.ok){
+    //         setErrorMessage(data.detail)
+    //     }else{
+            
+    //   }
+    const config = {
+        reference: (new Date()).getTime().toString(),
+        email: "user@example.com",
+        amount: totalItem *100,
+        publicKey: 'pk_test_a2a08405b2f3f7f1046e010e11b4c0bfbbb7024b',
+        };
+        
+        // you can call this function anything
+        const onSuccess = (reference) => {
+        // Implementation for whatever you want to do with reference and after success call.
+        //setErrorMessage("payment successfull")
+        console.log([...carts])
+        const requestOptions1 = {
+            method: "POST",
             headers:{
                 "Content-Type":"application/json",
                 Authorization: "Bearer " + token,
-                'cache-control':'no-cache'
             },
+            body: JSON.stringify([...carts]),
              
         };
-        const response = await fetch ("http://localhost:8000/payment/", requestOptions);
-        const data = await response.json()
+        const response = fetch ("http://localhost:8000/shipped{title}/{price}/{rate}/{description}/", requestOptions1);
+        const data =  response.json()
         console.log(data)
         if(!response.ok){
             setErrorMessage(data.detail)
         }else{
-            setErrorMessage("Payment successfully ");
+            setErrorMessage("Payment successfull and Item Added to Cart");
+     
         }
-
-    }
-    // const config = {
-    //     reference: (new Date()).getTime().toString(),
-    //     email: "user@example.com",
-    //     amount: totalItem *100,
-    //     publicKey: 'pk_test_a2a08405b2f3f7f1046e010e11b4c0bfbbb7024b',
-    //     };
-        
-    //     // you can call this function anything
-    //     const onSuccess = (reference) => {
-    //     // Implementation for whatever you want to do with reference and after success call.
-    //     console.log(reference);
-    //     };
+        console.log(reference);
+        };
     
-    //     // you can call this function anything
-    //     const onClose = () => {
-    //     // implementation for  whatever you want to do when the Paystack dialog closed.
-    //     console.log('closed')
-    //     }
+        // you can call this function anything
+        const onClose = () => {
+        // implementation for  whatever you want to do when the Paystack dialog closed.
+        console.log('closed')
+        }
   
-    //     const initializePayment = usePaystackPayment(config);
+        const initializePayment = usePaystackPayment(config);
       return(
           <div>
             <Container>
@@ -203,7 +201,8 @@ const Cart = () => {
                         </tbody>
                         
                     </Table>
-                    <div>TOTAL = {totalItem}</div> <button onClick={pay} className = "btn btn-outline-info btn-sm mr-2"> Pay </button>
+                    <div>TOTAL = {totalItem}</div> <button onClick={() => {initializePayment(onSuccess, onClose)
+            }} className = "btn btn-outline-info btn-sm mr-2"> Pay </button>
                 </Col>
             </Row>
             </Container>

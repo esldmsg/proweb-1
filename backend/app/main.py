@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from typing import List, Optional
-from fastapi import Depends, FastAPI, HTTPException, status, File, UploadFile
+from fastapi import Depends, FastAPI, HTTPException, status, File, UploadFile, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
@@ -50,6 +50,16 @@ class Item(BaseModel):
     description:str
     price: int
     rate:Optional[int] = 0
+    # owner_id:Optional[int] = None
+    class Config:
+        orm_mode = True
+
+class Shipped(BaseModel):
+    id:Optional[int] = None
+    title: str
+    description:str
+    price: int
+    rate:int 
     # owner_id:Optional[int] = None
     class Config:
         orm_mode = True
@@ -184,9 +194,15 @@ class Transaction(BaseAPI):
             url = self._url("/transaction/verify/{}".format(reference))
             return self._handle_request("GET", url)
 
-@app.get("/payment")
-async def paymode(  current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db), response_class=RedirectResponse, status_code=302 ):
-       return current_user
+@app.post("/shipped/{title}/{price}/{rate}/{description}", response_model=Shipped)
+def shipped( item:Shipped, current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db), ):
+    #db_item = db.query(models.Item).filter(models.Item.title==item.title).first()
+    user_id = current_user.id
+    new_item = models.Shipped(title=item.title, price=item.price, rate=item.rate, description= item.description, owner_id=user_id)
+    db.add(new_item)
+    db.commit()
+    db.refresh(new_item)
+    return new_item
 
 
 
