@@ -1,17 +1,15 @@
 import react, {useEffect, useContext} from 'react'
-import { Table } from 'react-bootstrap'
 import {ProductContext} from '../ProductContext';
-import ProductRow from './ProductRow';
-import ItemCard from './ItemCard'
-
+import ItemCard from './ItemCard';
+import {UserContext} from '../UserContext';
+import{ Redirect} from "react-router-dom";
 
 
 
 const Store = () => {
+    const[token]  = useContext(UserContext);
+
     const [products, setProducts]  =  useContext(ProductContext)
-    
-
-
 
     useEffect( () => {
         fetch('http://localhost:8000/allitems/?skip=0&limit=100')
@@ -24,6 +22,10 @@ const Store = () => {
         })
     }, [])
     console.log(products.data)
+    if (token === "null" ){
+        return <Redirect to ="/"/>;
+    }
+
       return(
         
             <section className="py-4 container">

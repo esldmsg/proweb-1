@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 from typing import List, Optional
 from fastapi import Depends, FastAPI, HTTPException, status, File, UploadFile, Request, Response
+from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
@@ -195,7 +196,7 @@ class Transaction(BaseAPI):
             return self._handle_request("GET", url)
 
 @app.post("/shipped/{title}/{price}/{rate}/{description}", response_model=Shipped)
-def shipped( shipped:Shipped, current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db), ):
+async def shipped( shipped:Shipped, current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db), ):
     user_id = current_user.id
     new_item = models.Shipped(title=shipped.title, price=shipped.price, rate=shipped.rate, description= shipped.description, owner_id=user_id)
     db.add(new_item)
@@ -342,6 +343,6 @@ def delete_item_for_all(
 def read_items_for_all_user(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
    return db.query(models.Item).filter(models.Item.owner_id==4).all()
 
-@app.get("/users/me")
-async def read_users_me(current_user : User = Depends(get_current_active_user)):
-    return current_user.id
+# @app.get("/pydantic")
+# async def redirect_pydantic(current_user : User = Depends(get_current_active_user), response_class=RedirectResponse, status_code=302):
+#     return "https://fastapi.tiangolo.com"

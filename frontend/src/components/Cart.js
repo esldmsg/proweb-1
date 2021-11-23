@@ -4,12 +4,14 @@ import './cart.css'
 import {UserContext} from '../UserContext';
 import { usePaystackPayment } from 'react-paystack';
 import ErrorMessage from './ErrorMessage';
+import{ Redirect} from "react-router-dom"
+
 
 
 
 const Cart = () => {
+    const[token]  = useContext(UserContext);
     const [totalItem, setTotalItem] = useState(0);
-    const [token] = useContext(UserContext);
     const [errorMessage, setErrorMessage] = useState("");
     const [carts, setCarts]  =  useState([
        { id:"",
@@ -173,6 +175,10 @@ const Cart = () => {
         }
   
         const initializePayment = usePaystackPayment(config);
+        if (token === 'null') {
+            return <Redirect to ="/"/>;
+        }
+    
       return(
           <div>
             <script src="https://js.paystack.co/v1/inline.js"></script>

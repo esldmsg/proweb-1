@@ -1,39 +1,35 @@
 import React, {useContext} from "react";
 import {ProductProvider} from '../ProductContext';
+import {UserContext} from '../UserContext';
 import {
   BrowserRouter as Router,
   Switch,
   Route,
- 
+ Redirect,
 } from "react-router-dom";
 import Admin from "./Admin";
 import Store from "./Store";
 import Cart from "./Cart";
 import Register from "./Register"
 import Login from "./Login";
+//import Logout from "./Logout";
 
 
 function Main() {
+  const[token]  = useContext(UserContext);
+
     return(
       
        <Router>
          <ProductProvider>
           <Switch>
-              <Route path="/Admin">
+              {/* <Route path="/Admin">
                 <Admin />
-              </Route>
-              <Route path="/Store">
-                <Store />
-              </Route>
-              <Route path="/Cart">
-                <Cart />
-              </Route>
-              <Route path="/Register">
-                <Register />
-              </Route>
-              <Route exact path="/">
-                <Login />
-              </Route>
+              </Route> */}
+              <Route path="/Store" component={Store} />
+              <Route path="/Cart" component={Cart}/>
+              <Route path="/Register" component={Register}/>
+              <Route exact path="/" component={Login}/>
           </Switch>
          </ProductProvider>
     </Router>

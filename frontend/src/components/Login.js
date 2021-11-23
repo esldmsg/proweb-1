@@ -2,7 +2,7 @@ import react,{useState, useEffect, useContext} from 'react'
 import ErrorMessage from './ErrorMessage';
 import {UserContext} from '../UserContext';
 import {Container, Row, Col } from 'react-bootstrap';
-
+import {useHistory}  from "react-router-dom";
 
 
 
@@ -11,6 +11,8 @@ import {Container, Row, Col } from 'react-bootstrap';
 
 
 const Login = () => {
+    let history = useHistory();
+   
     const [errorMessage, setErrorMessage] = useState("");
     const [, setToken] = useContext(UserContext);
     const [username, setUsername] = useState("");
@@ -39,8 +41,10 @@ const Login = () => {
             setErrorMessage(data.detail)
         }else{
             setErrorMessage("you have Successfully Login");
-            setToken(data.access_token)
             cleanFormData();
+            setToken(data.access_token)
+            history.push('/store')
+            
            
               
          
