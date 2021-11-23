@@ -195,10 +195,9 @@ class Transaction(BaseAPI):
             return self._handle_request("GET", url)
 
 @app.post("/shipped/{title}/{price}/{rate}/{description}", response_model=Shipped)
-def shipped( item:Shipped, current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db), ):
-    #db_item = db.query(models.Item).filter(models.Item.title==item.title).first()
+def shipped( shipped:Shipped, current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db), ):
     user_id = current_user.id
-    new_item = models.Shipped(title=item.title, price=item.price, rate=item.rate, description= item.description, owner_id=user_id)
+    new_item = models.Shipped(title=shipped.title, price=shipped.price, rate=shipped.rate, description= shipped.description, owner_id=user_id)
     db.add(new_item)
     db.commit()
     db.refresh(new_item)

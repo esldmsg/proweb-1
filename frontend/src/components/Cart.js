@@ -135,6 +135,7 @@ const Cart = () => {
         const onSuccess = (reference) => {
         // Implementation for whatever you want to do with reference and after success call.
         //setErrorMessage("payment successfull")
+    const shipped = async (title, price,rate, description) => {
         console.log([...carts])
         const requestOptions1 = {
             method: "POST",
@@ -142,10 +143,16 @@ const Cart = () => {
                 "Content-Type":"application/json",
                 Authorization: "Bearer " + token,
             },
-            body:[...carts],
+            body: JSON.stringify({
+                title:carts.title,
+                price:carts.price,
+                rate:carts.rate,
+                description:carts.description,
+               
+             }),
              
         };
-        const response = fetch ("http://localhost:8000/shipped/{title}/{price}/{rate}/{description}/", requestOptions1);
+        const response = await fetch ("http://localhost:8000/shipped/{title}/{price}/{rate}/{description}/", requestOptions1);
         const data =  response.json()
         console.log(data)
         if(!response.ok){
@@ -154,7 +161,9 @@ const Cart = () => {
             setErrorMessage("Payment successfull and Item Added to Cart");
      
         }
+    }
         console.log(reference);
+        shipped()
         };
     
         // you can call this function anything
@@ -166,6 +175,7 @@ const Cart = () => {
         const initializePayment = usePaystackPayment(config);
       return(
           <div>
+            <script src="https://js.paystack.co/v1/inline.js"></script>
             <Container>
             <Row>
                 
@@ -194,15 +204,14 @@ const Cart = () => {
                                    <button onClick={() => handleQuantityIncrease(index, cart.price, cart.rate)}  className = "btn btn-outline-info btn-sm mr-2">+</button>
                                    <button onClick={() => handleQuantityDecrease(index, cart.price, cart.rate)}  className = "btn btn-outline-info btn-sm mr-2">-</button>
                                    <button onClick={() => handleDelete(cart.id)}  className = "btn btn-outline-danger btn-sm mr-2">Delete</button> 
-                                   </td>
+                                   <button onClick={() => {initializePayment(onSuccess, onClose)}} className = "btn btn-outline-info btn-sm mr-2"> Pay </button>
+                                  </td>
 
                                </tr>
                     ))}
                         </tbody>
-                        <script src="https://js.paystack.co/v1/inline.js"></script>
+                        
                     </Table>
-                    <div>TOTAL = {totalItem}</div> <button onClick={() => {initializePayment(onSuccess, onClose)
-            }} className = "btn btn-outline-info btn-sm mr-2"> Pay </button>
                 </Col>
             </Row>
             </Container>
