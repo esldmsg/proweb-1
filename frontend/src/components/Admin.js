@@ -12,10 +12,10 @@ const Admin = () => {
         {
             title: "",
             description: "",
-            url:"https://storedev.s3-us-west-2.amazonaws.com/Image/7XVTp5fCQih2PEA4LxvAbx.jpeg",
             price: "",
         }
     )
+    const [urlInfo, setUrlInfo] = useState ("");
 
     const updateForm = (e) => {
         setProductInfo(
@@ -37,9 +37,8 @@ const Admin = () => {
         ReactS3Client.uploadFile(e.target.files[0])
         .then((data)=>{
             console.log(data.location)
-            setProductInfo({
-                url: data.location
-            });
+            
+            setUrlInfo(data.location)
         })
 
         .catch(err => console.error(err))
@@ -55,14 +54,14 @@ const Admin = () => {
             },
             body: JSON.stringify({
                    
-                "title": productInfo['title'],
-                "description": productInfo['description'],
-                "price": productInfo['price'],
-                "url":productInfo['url']
+                title: productInfo.title,
+                description: productInfo.description,
+                price: productInfo.price,
+                url:urlInfo,
             }),
         }
 
-        const response = await fetch ("http://localhost:8000/admin/items", requestOptions);
+        const response = await fetch ("http://localhost:8000/admin/items/", requestOptions);
         console.log(response)
         if(!response.ok){
             setErrorMessage("somethin went wrong")
@@ -72,7 +71,6 @@ const Admin = () => {
                 title: "",
                 description: "",
                 price: "",
-                url:"",
             });
         }
 
@@ -100,7 +98,7 @@ const Admin = () => {
                     </Form.Group>
                     <Form.Group controlId="UploadFile">
                         <Form.Label>Upload Image</Form.Label>
-                        <Form.Control type="file"  onChange = {upload}  placeholder="Upload Image" />
+                        <Form.Control type="file" name="url" value = {productInfo.url} onChange ={upload}  placeholder="Upload Image" />
                     </Form.Group>
 
                     <Button style={{marginTop:"10px"}} variant="primary" type="submit">

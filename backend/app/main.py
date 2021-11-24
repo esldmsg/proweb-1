@@ -50,7 +50,7 @@ class Item(BaseModel):
     id:Optional[int] = None
     title: str
     description:str
-    url:Optional[str] =None
+    url:str
     price: int
     rate:Optional[int] = 0
     # owner_id:Optional[int] = None
@@ -252,11 +252,11 @@ async def signIn_user(form_data:OAuth2PasswordRequestForm = Depends(),db: Sessio
     return {"access_token": access_token, "token_type": "bearer"}
 
     
-@app.post("/users/items/{title}/{url}/{description}/{price}")
-def create_item_for_user( title:str, url, description:str, price:int,  current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db), ):
+@app.post("/user/item", response_model=Item)
+def create_item_for_user(item:Item,  current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db), ):
     #db_item = db.query(models.Item).filter(models.Item.title==item.title).first()
     user_id = current_user.id
-    new_item = models.Item(title=title, url=url, description=description, price=price,  owner_id=user_id)
+    new_item = models.Item(title=item.title, price=item.price, url=item.url, description=item.description,  owner_id=user_id)
     db.add(new_item)
     db.commit()
     db.refresh(new_item)
@@ -307,9 +307,9 @@ def read_items(skip: int = 0, limit: int = 100, db: Session = Depends(get_db), c
 #     return url
     
 
-@app.post("/admin/items/")
-def create_item_for_all_user(title:str, price:int,url:str, description:str, file:UploadFile = File(...), db: Session = Depends(get_db)):
-    new_item = models.Item(title=title, price=price, url=url, description=description, owner_id=4)
+@app.post("/admin/items/", response_model = Item)
+def create_item_for_all_user( item:Item, db: Session = Depends(get_db)):
+    new_item = models.Item(title=item.title, price=item.price, url=item.url, description=item.description, owner_id=4)
     db.add(new_item)
     db.commit()
     db.refresh(new_item)

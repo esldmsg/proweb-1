@@ -18,18 +18,19 @@ const ItemCard = (props) => {
         const requestOptions = {
             method: "POST",
             headers:{
-                "Content-Type":"www-form-urlencoded",
+                "content-Type": "application/json",
                 Authorization: "Bearer " + token,
             },
             body: JSON.stringify({
                 title,
+                price,
                 url,
                 description,
-                price,   
+                
              }),
              
         };
-        const response = await fetch ("http://localhost:8000/users/items/{title}/{url}/{description}/{price}", requestOptions);
+        const response = await fetch ("http://localhost:8000/user/item", requestOptions);
         const data = await response.json()
         console.log(data)
         if(!response.ok){
@@ -44,7 +45,7 @@ const ItemCard = (props) => {
     return(
         <div className="col-11 col-md-6 col-lg-3 mx-0 mb-4">
             <Card style={{ width: '18rem', p:0, overflow:'hidden', h:'100 shadow'}}>
-                    <Card.Img variant="top" src={props.url} />
+                    <Card.Img style={{height:"200px"}} variant="top" src={props.url} />
                     <Card.Body>
                         <Card.Title>{props.title}</Card.Title>
                         <Card.Text>{props.description}</Card.Text>

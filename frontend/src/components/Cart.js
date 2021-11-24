@@ -204,7 +204,7 @@ const Cart = () => {
                         <tbody>
                         {carts.map((cart, index) => (
                                <tr>
-                                   <td>{cart.url}</td>
+                                   <img style={{height:"100px",width:"100px"}} src={cart.url}/>
                                    <td>{cart.title}</td>
                                    <td>{cart.description}</td>
                                    <td>{cart.price}</td>
