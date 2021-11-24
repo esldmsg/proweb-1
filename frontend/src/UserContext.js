@@ -1,5 +1,5 @@
 import React, { createContext, useEffect, useState } from "react";
-
+import{ Redirect} from "react-router-dom";
 export const UserContext = createContext();
 
 export const UserProvider = (props) => {
@@ -19,6 +19,7 @@ export const UserProvider = (props) => {
 
       if (!response.ok) {
         setToken(null);
+        return <Redirect to = '/'/>
       }
       localStorage.setItem("passToken", token);
     };

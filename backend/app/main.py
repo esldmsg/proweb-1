@@ -12,6 +12,7 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 from . import  models
 from .database import SessionLocal, engine
+import shutil
 models.Base.metadata.create_all(bind=engine)
 
 
@@ -49,6 +50,7 @@ class Item(BaseModel):
     id:Optional[int] = None
     title: str
     description:str
+    url:Optional[str] =None
     price: int
     rate:Optional[int] = 0
     # owner_id:Optional[int] = None
@@ -250,11 +252,11 @@ async def signIn_user(form_data:OAuth2PasswordRequestForm = Depends(),db: Sessio
     return {"access_token": access_token, "token_type": "bearer"}
 
     
-@app.post("/users/items/{title}/{price}/{description}", response_model=Item)
-def create_item_for_user( item:Item, current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db), ):
+@app.post("/users/items/{title}/{url}/{description}/{price}")
+def create_item_for_user( title:str, url, description:str, price:int,  current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db), ):
     #db_item = db.query(models.Item).filter(models.Item.title==item.title).first()
     user_id = current_user.id
-    new_item = models.Item(title=item.title, price=item.price, description= item.description, owner_id=user_id)
+    new_item = models.Item(title=title, url=url, description=description, price=price,  owner_id=user_id)
     db.add(new_item)
     db.commit()
     db.refresh(new_item)
@@ -297,16 +299,20 @@ def read_items(skip: int = 0, limit: int = 100, db: Session = Depends(get_db), c
     return db.query(models.Item).filter(models.Item.owner_id==user_id).all()
 
 
-@app.post('/uploadfile')
-async def upload(file:UploadFile = File(...)):
-    contents = await file.read()
-    print(contents)
+# @app.post('/uploadfile')
+# async def upload(file:UploadFile = File(...)):
+#     with open("media/"+file.filename, "wb+") as image:
+#         shutil.copyfileobj(file.file, image)
+#     url = str("media/"+file.filename)
+#     return url
     
 
-@app.post("/admin/items", response_model=Item)
-def create_item_for_all_user( 
-     item:Item, db: Session = Depends(get_db)):
-    new_item = models.Item(title=item.title, price=item.price, description= item.description, owner_id=4)
+@app.post("/admin/items/uploadfile")
+def create_item_for_all_user(title:str, price:int, description:str, file:UploadFile = File(...), db: Session = Depends(get_db)):
+    with open("media/"+file.filename, "wb+") as image:
+        shutil.copyfileobj(file.file, image)
+    url = str("media/"+file.filename)
+    new_item = models.Item(title=title, price=price, url=url, description=description, owner_id=4)
     db.add(new_item)
     db.commit()
     db.refresh(new_item)

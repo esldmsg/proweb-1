@@ -1,5 +1,6 @@
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
+from sqlalchemy_utils import URLType
 
 
 from .database import Base
@@ -35,6 +36,7 @@ class Item(Base):
     description = Column(String, index=True)
     price = Column(Integer)
     rate = Column(Integer)
+    url = Column(URLType)
     owner_id = Column(Integer, ForeignKey("users.id"))
 
     owner1 = relationship("User", back_populates="items")
@@ -52,6 +54,7 @@ class Shipped(Base):
     description = Column(String, index=True)
     price = Column(Integer)
     rate = Column(Integer)
+    url = Column(URLType)
     owner_id = Column(Integer, ForeignKey("users.id"))
 
     owner2 = relationship("User", back_populates="shipped")

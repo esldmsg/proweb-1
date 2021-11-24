@@ -2,6 +2,7 @@ import react, { useState } from 'react'
 import { Form, Button, Card, Container, Row, Col} from 'react-bootstrap'
 import AdminStore from './AdminStore'
 import ErrorMessage from './ErrorMessage'
+import S3FileUpload from 'react-s3';
 
 
 
@@ -21,6 +22,23 @@ const Admin = () => {
         )
     }
 
+    const config ={
+        bucketName:"storedev",
+        dirName:"",
+        region:"Oregon",
+        accessKeyId:"AKIATYQCI4ZNQB2HRXNW",
+        secretAccessKey:"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"
+    }
+
+    const upload = (e) => {
+        S3FileUpload.uploadFile(e.target.files[0], config)
+        .then((data)=>{
+            console.log(data.location)
+        })
+        .catch((err) =>{
+            alert(err)
+        })
+    }
 
     const postData = async (e) => {
         e.preventDefault();
@@ -70,6 +88,10 @@ const Admin = () => {
                     <Form.Group controlId="UnitPrice">
                         <Form.Label>Price</Form.Label>
                         <Form.Control type="number" name="price" value={productInfo.price} onChange = {updateForm}  placeholder="Price" />
+                    </Form.Group>
+                    <Form.Group controlId="UploadFile">
+                        <Form.Label>Price</Form.Label>
+                        <Form.Control type="file" name="upload" onChange = {upload}  placeholder="Upload Image" />
                     </Form.Group>
 
                     <Button style={{marginTop:"10px"}} variant="primary" type="submit">

@@ -18,6 +18,7 @@ const Cart = () => {
         title:"",
         price: "",
         rate: "",
+        url:"",
         description:"",
     }
     ]);
@@ -193,6 +194,7 @@ const Cart = () => {
                         <thead>
                             
                             <tr>
+                                <th>Image</th>
                                 <th>Product Name</th>
                                 <th>Product Description</th>
                                 <th>Unit Price</th>
@@ -202,6 +204,7 @@ const Cart = () => {
                         <tbody>
                         {carts.map((cart, index) => (
                                <tr>
+                                   <td>{cart.url}</td>
                                    <td>{cart.title}</td>
                                    <td>{cart.description}</td>
                                    <td>{cart.price}</td>

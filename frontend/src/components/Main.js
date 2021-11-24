@@ -23,9 +23,7 @@ function Main() {
        <Router>
          <ProductProvider>
           <Switch>
-              {/* <Route path="/Admin">
-                <Admin />
-              </Route> */}
+              <Route path="/Admin" component={Admin}/>
               <Route path="/Store" component={Store} />
               <Route path="/Cart" component={Cart}/>
               <Route path="/Register" component={Register}/>

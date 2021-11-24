@@ -36,6 +36,7 @@ const Store = () => {
                                         title = {item.title}
                                         description = {item.description}
                                         price = {item.price}
+                                        url = {item.url}
                                         key={index}
                                         item={item}
                                 />
