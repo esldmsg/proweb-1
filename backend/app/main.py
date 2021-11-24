@@ -307,11 +307,8 @@ def read_items(skip: int = 0, limit: int = 100, db: Session = Depends(get_db), c
 #     return url
     
 
-@app.post("/admin/items/uploadfile")
-def create_item_for_all_user(title:str, price:int, description:str, file:UploadFile = File(...), db: Session = Depends(get_db)):
-    with open("media/"+file.filename, "wb+") as image:
-        shutil.copyfileobj(file.file, image)
-    url = str("media/"+file.filename)
+@app.post("/admin/items/")
+def create_item_for_all_user(title:str, price:int,url:str, description:str, file:UploadFile = File(...), db: Session = Depends(get_db)):
     new_item = models.Item(title=title, price=price, url=url, description=description, owner_id=4)
     db.add(new_item)
     db.commit()
