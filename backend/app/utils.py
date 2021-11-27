@@ -13,10 +13,3 @@ def validate_amount(amount):
     else:
         raise InvalidDataError("Amount should be a number")
 
-
-def validate_interval(interval):
-
-    interval = interval if interval.lower() in ['hourly', 'daily', 'weekly', 'monthly', 'annually'] else None
-    if not interval:
-        raise InvalidDataError("Please provide a valid plan interval")
-    return interval

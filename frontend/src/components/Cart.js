@@ -22,8 +22,9 @@ const Cart = () => {
         description:"",
     }
     ]);
+    var [userEmail, setUserEmail] =  useState("");
    
-   
+
     
 
 
@@ -108,65 +109,42 @@ const Cart = () => {
      }
 
 
-    //  const pay = async () => {
-    //     //console.log(title, price, description)
-    //     const requestOptions = {
-    //         method: "GET",
-    //         headers:{
-    //             "Content-Type":"application/json",
-    //             Authorization: "Bearer " + token,
-    //             'cache-control':'no-cache'
-    //         },
-          
-    //     };
-    //     const response = await fetch ("http://localhost:8000/payment/", requestOptions);
-    //     const data = await response.json()
-    //     console.log(data)
-    //     if(!response.ok){
-    //         setErrorMessage(data.detail)
-    //     }else{
-            
-    //   }
-    const config = {
-        reference: (new Date()).getTime().toString(),
-        email: "user@example.com",
-        amount: totalItem *100,
-        publicKey: 'pk_test_a2a08405b2f3f7f1046e010e11b4c0bfbbb7024b',
-        };
-        
-        // you can call this function anything
-        const onSuccess = (reference) => {
-        // Implementation for whatever you want to do with reference and after success call.
-        //setErrorMessage("payment successfull")
-    const shipped = async (title, price,rate, description) => {
-        console.log([...carts])
-        const requestOptions1 = {
-            method: "POST",
+     const pay = async () => {
+        //console.log(title, price, description)
+        const requestOptions = {
+            method: "GET",
             headers:{
                 "Content-Type":"application/json",
                 Authorization: "Bearer " + token,
+                'cache-control':'no-cache'
             },
-            body: JSON.stringify({
-                title:carts.title,
-                price:carts.price,
-                rate:carts.rate,
-                description:carts.description,
-               
-             }),
-             
+         
         };
-        const response = await fetch ("http://localhost:8000/shipped/{title}/{price}/{rate}/{description}/", requestOptions1);
-        const data =  response.json()
+        const response = await fetch ("http://localhost:8000/payment/", requestOptions);
+        
+        const data = await response 
         console.log(data)
         if(!response.ok){
             setErrorMessage(data.detail)
         }else{
-            setErrorMessage("Payment successfull and Item Added to Cart");
-     
-        }
-    }
+           setUserEmail()
+           initializePayment(onSuccess, onclose)
+     }}
+    const config = {
+        reference: (new Date()).getTime().toString(),
+        
+        email:"user@gmail.com",
+        amount: totalItem *100,
+        publicKey: 'pk_test_a2a08405b2f3f7f1046e010e11b4c0bfbbb7024b',
+        };
+        
+        //you can call this function anything
+        const onSuccess = (reference) => {
+        // Implementation for whatever you want to do with reference and after success call.
+        //setErrorMessage("payment successfull")
+    
         console.log(reference);
-        shipped()
+        
         };
     
         // you can call this function anything
@@ -176,13 +154,17 @@ const Cart = () => {
         }
   
         const initializePayment = usePaystackPayment(config);
+
+
+
         if (token === 'null') {
             return <Redirect to ="/"/>;
         }
-    
+        
+
       return(
           <div>
-            <script src="https://js.paystack.co/v1/inline.js"></script>
+              {/* <script src="https://js.paystack.co/v1/inline.js"></script> */}
             <Container>
             <Row>
                 
@@ -204,7 +186,7 @@ const Cart = () => {
                         <tbody>
                         {carts.map((cart, index) => (
                                <tr>
-                                   <img style={{height:"100px",width:"100px"}} src={cart.url}/>
+                                   <td><img style={{height:"100px",width:"100px"}} src={cart.url}/></td>
                                    <td>{cart.title}</td>
                                    <td>{cart.description}</td>
                                    <td>{cart.price}</td>
@@ -213,7 +195,6 @@ const Cart = () => {
                                    <button onClick={() => handleQuantityIncrease(index, cart.price, cart.rate)}  className = "btn btn-outline-info btn-sm mr-2">+</button>
                                    <button onClick={() => handleQuantityDecrease(index, cart.price, cart.rate)}  className = "btn btn-outline-info btn-sm mr-2">-</button>
                                    <button onClick={() => handleDelete(cart.id)}  className = "btn btn-outline-danger btn-sm mr-2">Delete</button> 
-                                   <button onClick={() => {initializePayment(onSuccess, onClose)}} className = "btn btn-outline-info btn-sm mr-2"> Pay </button>
                                   </td>
 
                                </tr>
@@ -223,6 +204,10 @@ const Cart = () => {
                     </Table>
                 </Col>
             </Row>
+            <div>
+                <h4>TOTAL: {totalItem} </h4> 
+                <button onClick={pay} className = "btn btn-outline-info btn-sm mr-2"> Pay </button>
+            </div>
             </Container>
             </div>
 

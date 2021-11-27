@@ -13,12 +13,12 @@ from passlib.context import CryptContext
 from . import  models
 from .database import SessionLocal, engine
 import shutil
+import httpx
+import asyncio
 models.Base.metadata.create_all(bind=engine)
 
 
-from .baseapi import BaseAPI
-from . import utils
-from .errors import InvalidDataError
+
 
 app = FastAPI()
 
@@ -80,8 +80,9 @@ def get_db():
         db.close()
 class User(BaseModel):
     id: Optional[int] = None
-    name: str
+    username: str
     email: str
+    password:str
     is_active:bool
     class Config:
         orm_mode = True
@@ -148,54 +149,48 @@ async def get_current_active_user(current_user: User = Depends(get_current_user)
         raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
 
+@app.get("/payment")
+async def payment( current_user: User = Depends(get_current_active_user)):
+    return current_user
+# class Transaction(BaseAPI):
+#     def initialize(
+#         self, email, amount, plan=None, reference=None, channel=None, metadata=None
+#     ):
+#         """
+#         Initialize a transaction and returns the response
+#         args:
+#         email -- Customer's email address
+#         amount -- Amount to charge
+#         plan -- optional
+#         Reference -- optional
+#         channel -- channel type to use
+#         metadata -- a list if json data objects/dicts
+#         """
+#         amount = utils.validate_amount(amount)
 
-@app.post("/payment123w")
-class Transaction(BaseAPI):
-    def initialize(
-        self, email, amount, plan=None, reference=None, channel=None, metadata=None
-    ):
-        """
-        Initialize a transaction and returns the response
-        args:
-        email -- Customer's email address
-        amount -- Amount to charge
-        plan -- optional
-        Reference -- optional
-        channel -- channel type to use
-        metadata -- a list if json data objects/dicts
-        """
-        amount = utils.validate_amount(amount)
+#         if not email:
+#             raise InvalidDataError("Customer's Email is required for initialization")
 
-        if not email:
-            raise InvalidDataError("Customer's Email is required for initialization")
+#         url = self._url("/initialize")
+#         payload = {
+#             "email": email,
+#             "amount": amount,
+#         }
 
-        url = self._url("/initialize")
-        payload = {
-            "email": email,
-            "amount": amount,
-        }
+#         return self._handle_request("POST", url, payload)
 
-        if plan:
-            payload.update({"plan": plan})
-        if channel:
-            payload.update({"channels": channel})
-        if reference:
-            payload.update({"reference": reference})
-        if metadata:
-            payload = payload.update({"metadata": {"custom_fields": metadata}})
 
-        return self._handle_request("POST", url, payload)
 
-    def verify(self, reference):
-            """
-            Verifies a transaction using the provided reference number
-            args:
-            reference -- reference of the transaction to verify
-            """
 
-            reference = str(reference)
-            url = self._url("/transaction/verify/{}".format(reference))
-            return self._handle_request("GET", url)
+#URL = "http://httpbin.org/uuid"
+
+#async def request(client):
+#    response = await client.get(URL)
+ #   return response.text
+
+
+#@app.post("/payment123w")
+
 
 @app.post("/shipped/{title}/{price}/{rate}/{description}", response_model=Shipped)
 async def shipped( shipped:Shipped, current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db), ):
@@ -213,8 +208,8 @@ async def shipped( shipped:Shipped, current_user: User = Depends(get_current_act
 
 
 @app.post("/signUp/{username}/{email}/{password}")
-def create_user(username,email, password, db: Session = Depends(get_db)):
-    db_user = db.query(models.User).filter(models.User.email==email).first()
+def create_user(db: Session = Depends(get_db)):
+    db_user = db.query(models.User).filter(models.User.email==email).all()
     if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")
     fake_hashed_password = get_password_hash(password)

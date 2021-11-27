@@ -1,2 +1,2 @@
 from .import version
-from .main import Transaction
+from .transactions import Transaction
