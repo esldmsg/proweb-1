@@ -208,8 +208,8 @@ async def shipped( shipped:Shipped, current_user: User = Depends(get_current_act
 
 
 @app.post("/signUp/{username}/{email}/{password}")
-def create_user(db: Session = Depends(get_db)):
-    db_user = db.query(models.User).filter(models.User.email==email).all()
+def create_user(username, email, password,db: Session = Depends(get_db)):
+    db_user = db.query(models.User).filter(models.User.email==email).first()
     if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")
     fake_hashed_password = get_password_hash(password)

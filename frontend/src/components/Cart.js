@@ -121,19 +121,20 @@ const Cart = () => {
          
         };
         const response = await fetch ("http://localhost:8000/payment/", requestOptions);
-        
-        const data = await response 
-        console.log(data)
+        const data = await response.json() 
+        console.log(data.email)
         if(!response.ok){
             setErrorMessage(data.detail)
         }else{
-           setUserEmail()
+            var Email = (data.email)
+            var mail = JSON.stringify(Email)
+            console.log(mail)
+           setUserEmail(mail)
            initializePayment(onSuccess, onclose)
      }}
     const config = {
         reference: (new Date()).getTime().toString(),
-        
-        email:"user@gmail.com",
+        email: "user@gmail.com",
         amount: totalItem *100,
         publicKey: 'pk_test_a2a08405b2f3f7f1046e010e11b4c0bfbbb7024b',
         };
@@ -142,7 +143,9 @@ const Cart = () => {
         const onSuccess = (reference) => {
         // Implementation for whatever you want to do with reference and after success call.
         //setErrorMessage("payment successfull")
-    
+        const shipped = carts.filter(carts => carts.rate > 1);
+        console.log([...shipped]);
+       
         console.log(reference);
         
         };
