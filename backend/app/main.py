@@ -15,6 +15,7 @@ from .database import SessionLocal, engine
 import shutil
 import httpx
 import asyncio
+import requests
 models.Base.metadata.create_all(bind=engine)
 
 
@@ -292,7 +293,6 @@ def read_items(skip: int = 0, limit: int = 100, db: Session = Depends(get_db), c
     db_item = db.query(models.Item).filter(models.Item.owner_id==user_id).first()
     if db_item is None:
         raise HTTPException(status_code=400, detail="You are not ment to access this page")
-   
     return db.query(models.Item).filter(models.Item.owner_id==user_id).all()
 
 
@@ -343,6 +343,14 @@ def delete_item_for_all(
 def read_items_for_all_user(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
    return db.query(models.Item).filter(models.Item.owner_id==4).all()
 
-# @app.get("/pydantic")
-# async def redirect_pydantic(current_user : User = Depends(get_current_active_user), response_class=RedirectResponse, status_code=302):
-#     return "https://fastapi.tiangolo.com"
+@app. post("/pay/{rate}")
+async def pay(   rate:int, current_user : User = Depends(get_current_active_user)):
+    email= current_user.email
+    url = "https://api.paystack.co/transaction/initialize"
+    payload = {"email": email, "amount":rate}
+
+    headers = {"Authorization": "Bearer sk_test_ecb81509f58a30dcdafc38bb05e25365fd97dc22"}
+    r = requests. post(url, headers=headers, data=payload)
+    jsonR = r.json()
+    return (jsonR["data"]["authorization_url"])
+
