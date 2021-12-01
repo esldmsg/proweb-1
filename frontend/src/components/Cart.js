@@ -110,7 +110,7 @@ const Cart = () => {
              }),
          
         };
-        const response = await fetch ("http://localhost:8000/user/pay/item/{title}/{price}/{rate}/{description}", requestOptions);
+        const response = await fetch ("http://localhost:8000/user/pay/item/{title}/{price}/{rate}/{description}/{url}", requestOptions);
         const data = await response.json() 
         console.log(data)
         if(!response.ok){

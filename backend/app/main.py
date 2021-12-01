@@ -54,7 +54,6 @@ class Item(BaseModel):
     url:str
     price: int
     rate:Optional[int] = 0
-    # owner_id:Optional[int] = None
     class Config:
         orm_mode = True
 
@@ -62,9 +61,9 @@ class Shipped(BaseModel):
     id:Optional[int] = None
     title: str
     description:str
+    url:str
     price: int
     rate:int 
-    # owner_id:Optional[int] = None
     class Config:
         orm_mode = True
 
@@ -155,23 +154,6 @@ async def get_current_active_user(current_user: User = Depends(get_current_user)
 @app.get("/api/users/me")
 async def payment( current_user: User = Depends(get_current_active_user)):
     return current_user
-
-
-
-@app.post("/shipped/{title}/{price}/{rate}/{description}", response_model=Shipped)
-async def shipped( shipped:Shipped, current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db), ):
-    user_id = current_user.id
-    new_item = models.Shipped(title=shipped.title, price=shipped.price, rate=shipped.rate, description= shipped.description, owner_id=user_id)
-    db.add(new_item)
-    db.commit()
-    db.refresh(new_item)
-    return new_item
-
-
-
-
-
-
 
 @app.post("/signUp/{username}/{email}/{password}")
 def create_user(username, email, password,db: Session = Depends(get_db)):
@@ -306,17 +288,17 @@ def delete_item_for_all(
 def read_items_for_all_user(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
    return db.query(models.Item).filter(models.Item.owner_id==4).all()
 
-@app. post("/user/pay/item/{title}/{price}/{rate}/{description}")
+@app. post("/user/pay/item/{title}/{price}/{rate}/{description}/{url}")
 async def pay(shipped:Shipped, current_user : User = Depends(get_current_active_user), db: Session = Depends(get_db)):
     email= current_user.email
+    name = current_user.username
     user_id = current_user.id
     url = "https://api.paystack.co/transaction/initialize"
     payload = {"email": email, "amount":shipped.rate*100}
-
     headers = {"Authorization": "Bearer sk_test_ecb81509f58a30dcdafc38bb05e25365fd97dc22"}
     response = requests. post(url, headers=headers, data=payload)
     if response.status_code == 200:
-        new_item = models.Shipped(title=shipped.title, price=shipped.price, rate=shipped.rate, description= shipped.description, owner_id=user_id)
+        new_item = models.Shipped(title=shipped.title, price=shipped.price, rate=shipped.rate, description= shipped.description, url= shipped.url, owner_id=user_id)
         db.add(new_item)
         db.commit()
         db.refresh(new_item)
@@ -326,11 +308,39 @@ async def pay(shipped:Shipped, current_user : User = Depends(get_current_active_
     else:
          raise HTTPException(status_code=400, detail="Try Again Something Went Wrong")
 
-# @app.post("/shipped/{title}/{price}/{rate}/{description}", response_model=Shipped)
-# async def shipped( shipped:Shipped, current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db), ):
-#     user_id = current_user.id
-#     new_item = models.Shipped(title=shipped.title, price=shipped.price, rate=shipped.rate, description= shipped.description, owner_id=user_id)
-#     db.add(new_item)
-#     db.commit()
-#     db.refresh(new_item)
-#     return new_item
+@app.get("/shipping/", response_model=List[Shipped])
+def read_shipped_items(skip: int = 0, limit: int = 100, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
+    user_id = current_user.id
+    db_user = db.query(models.User).filter(models.User.id==user_id).first()
+    if db_user is None:
+        raise HTTPException(status_code=400, detail="User does not exist")
+
+    db_item = db.query(models.Shipped).filter(models.Shipped.owner_id==user_id).first()
+    if db_item is None:
+        raise HTTPException(status_code=400, detail="You are not ment to access this page")
+    return db.query(models.Shipped).filter(models.Shipped.owner_id==user_id).all()
+
+
+@app.delete("/shipping/delete/{shipped_id}")
+def delete_shipped_item_for_user( item_id:int, db: Session = Depends(get_db),  current_user: User = Depends(get_current_active_user)):
+    user_id = current_user.id
+    db_check_for_shipped_id = db.query(models.Shipped).filter(models.Shipped.id==shipped_id).first()
+    if db_check_for_shipped_id is None :
+        raise HTTPException(status_code=400, detail="item does not exist")
+
+    db_check_for_user_id = db.query(models.User.id).filter(models.User.id==user_id).first()
+    if db_check_for_user_id :
+        db_check_for_owner_id = db.query(models.Shipped.owner_id).filter(models.Shipped.id==shipped_id).first()
+        if  db_check_for_user_id == db_check_for_owner_id :
+            db_item_to_be_deleted = db.query(models.Shipped).filter(models.Shipped.id==shipped_id).first()
+            db.delete( db_item_to_be_deleted)
+            db.commit()
+            return {
+                "message":f" item with item_id {shipped_id} deleted"
+            }
+        else:
+              raise HTTPException(status_code=400, detail="You are not ment to delete this item")
+    else :  return {
+                "message":f" user does not exist"
+            }
+

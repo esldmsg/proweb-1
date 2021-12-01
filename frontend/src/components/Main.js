@@ -10,6 +10,7 @@ import {
 import Admin from "./Admin";
 import Store from "./Store";
 import Cart from "./Cart";
+import Shipped from "./Shipped";
 import Register from "./Register"
 import Login from "./Login";
 //import Logout from "./Logout";
@@ -26,6 +27,7 @@ function Main() {
               <Route path="/Admin" component={Admin}/>
               <Route path="/Store" component={Store} />
               <Route path="/Cart" component={Cart}/>
+              <Route path="/Shipped" component={Shipped}/>
               <Route path="/Register" component={Register}/>
               <Route exact path="/" component={Login}/>
           </Switch>
