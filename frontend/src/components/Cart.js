@@ -23,10 +23,26 @@ const Cart = () => {
     }
     ]);
     
-   
+    // useEffect( () => {
+    //     const requestOptions ={
+    //         method: "GET",
+    //         headers:{
+    //             "Content-Type":"application/json",
+    //             Authorization: "Bearer " + token,
+    //         },
+    //     };
+    //     fetch('http://localhost:8000/items/?skip=0&limit=100', requestOptions)
+    //        .then(resp => {
+    //            console.log(resp)
+    //            return resp.json();
+    //     }).then(results => {
+    //         console.log(results)
+    //         setCarts([...results] )
+    //     })
+    // }, [])
     useEffect( () => {    
      const getCart = async () => {
-        const requestOptions ={
+        const requestOptions = {
             method: "GET",
             headers:{
                 "Content-Type":"application/json",
@@ -37,12 +53,12 @@ const Cart = () => {
             if(!response.ok){
                 setErrorMessage("Could not ge Cart");
             }else{
-                const data = await response.json()
-               setCarts([...data]
-            }
-        };
+               const data = await response.json();
+               setCarts([...data])
+               }
+        }
         getCart();
-    }, [])
+    }, [token])
     const handleDelete = async (id) => {
         const requestOptions = {
             method: "DELETE",
@@ -90,27 +106,34 @@ const Cart = () => {
      }
 
 
-     const pay = async (rate) => {
+     const pay = async (id, title, price, rate, description, url) => {
         console.log(rate)
         const requestOptions = {
             method: "POST",
             headers:{
                 "Content-Type":"application/json",
                 Authorization: "Bearer " + token,
-                'cache-control':'no-cache'
+                "Access-Control-Allow-Origin": "*",
+                'cache-control':'no-cache',
             },
             body: JSON.stringify({
-              
-                rate
+                title,
+                price,
+                rate,
+                description,
+                url,
+
               
              }),
          
         };
-        const response = await fetch ("http://localhost:8000/pay/{rate}", requestOptions);
+        const response = await fetch ("http://localhost:8000/user/pay/item/{title}/{price}/{rate}/{description}", requestOptions);
         const data = await response.json() 
+        console.log(data)
         if(!response.ok){
             setErrorMessage(data.detail)
         }else{
+            window.location.href = data
             setErrorMessage("You are ready to pay")
     }
 }
@@ -144,7 +167,8 @@ const Cart = () => {
                         <tbody>
                         {carts.map((cart, index) => (
                                <tr>
-                                   <td><img style={{height:"100px",width:"100px"}} src={cart.url}/></td>
+                                   
+                                   <td ><img style={{height:"100px",width:"100px"}} src={cart.url}/></td>
                                    <td>{cart.title}</td>
                                    <td>{cart.description}</td>
                                    <td>{cart.price}</td>
@@ -153,7 +177,7 @@ const Cart = () => {
                                    <button onClick={() => handleQuantityIncrease(index, cart.price, cart.rate)}  className = "btn btn-outline-info btn-sm mr-2">+</button>
                                    <button onClick={() => handleQuantityDecrease(index, cart.price, cart.rate)}  className = "btn btn-outline-info btn-sm mr-2">-</button>
                                    <button onClick={() => handleDelete(cart.id)}  className = "btn btn-outline-danger btn-sm mr-2">Delete</button> 
-                                   <button onClick={() => pay(cart.id,cart.title,cart.price, cart.rate, cart.description, cart.url)} className = "btn btn-outline-info btn-sm mr-2"> Pay </button>
+                                   <button  key={index} onClick={() => pay(cart.id,cart.title,cart.price, cart.rate, cart.description, cart.url)} className = "btn btn-outline-info btn-sm mr-2"> Pay </button>
                                   </td>
 
                                </tr>

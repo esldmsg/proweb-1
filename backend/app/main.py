@@ -343,14 +343,31 @@ def delete_item_for_all(
 def read_items_for_all_user(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
    return db.query(models.Item).filter(models.Item.owner_id==4).all()
 
-@app. post("/pay/{rate}")
-async def pay(   rate:int, current_user : User = Depends(get_current_active_user)):
+@app. post("/user/pay/item/{title}/{price}/{rate}/{description}", response_model=Shipped)
+async def pay(shipped:Shipped, current_user : User = Depends(get_current_active_user), db: Session = Depends(get_db)):
     email= current_user.email
+    user_id = current_user.id
     url = "https://api.paystack.co/transaction/initialize"
-    payload = {"email": email, "amount":rate}
+    payload = {"email": email, "amount":shipped.rate}
 
     headers = {"Authorization": "Bearer sk_test_ecb81509f58a30dcdafc38bb05e25365fd97dc22"}
-    r = requests. post(url, headers=headers, data=payload)
-    jsonR = r.json()
-    return (jsonR["data"]["authorization_url"])
+    response = requests. post(url, headers=headers, data=payload)
+    if response.status_code == 200:
+        new_item = models.Shipped(title=shipped.title, price=shipped.price, rate=shipped.rate, description= shipped.description, owner_id=user_id)
+        db.add(new_item)
+        db.commit()
+        db.refresh(new_item)
+        json_Response= response.json()
+        return (json_Response["data"]["authorization_url"])
 
+    else:
+         raise HTTPException(status_code=400, detail="Try Again Something Went Wrong")
+
+# @app.post("/shipped/{title}/{price}/{rate}/{description}", response_model=Shipped)
+# async def shipped( shipped:Shipped, current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db), ):
+#     user_id = current_user.id
+#     new_item = models.Shipped(title=shipped.title, price=shipped.price, rate=shipped.rate, description= shipped.description, owner_id=user_id)
+#     db.add(new_item)
+#     db.commit()
+#     db.refresh(new_item)
+#     return new_item
