@@ -152,47 +152,10 @@ async def get_current_active_user(current_user: User = Depends(get_current_user)
         raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
 
-@app.get("/payment")
+@app.get("/api/users/me")
 async def payment( current_user: User = Depends(get_current_active_user)):
     return current_user
-# class Transaction(BaseAPI):
-#     def initialize(
-#         self, email, amount, plan=None, reference=None, channel=None, metadata=None
-#     ):
-#         """
-#         Initialize a transaction and returns the response
-#         args:
-#         email -- Customer's email address
-#         amount -- Amount to charge
-#         plan -- optional
-#         Reference -- optional
-#         channel -- channel type to use
-#         metadata -- a list if json data objects/dicts
-#         """
-#         amount = utils.validate_amount(amount)
 
-#         if not email:
-#             raise InvalidDataError("Customer's Email is required for initialization")
-
-#         url = self._url("/initialize")
-#         payload = {
-#             "email": email,
-#             "amount": amount,
-#         }
-
-#         return self._handle_request("POST", url, payload)
-
-
-
-
-#URL = "http://httpbin.org/uuid"
-
-#async def request(client):
-#    response = await client.get(URL)
- #   return response.text
-
-
-#@app.post("/payment123w")
 
 
 @app.post("/shipped/{title}/{price}/{rate}/{description}", response_model=Shipped)
@@ -343,12 +306,12 @@ def delete_item_for_all(
 def read_items_for_all_user(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
    return db.query(models.Item).filter(models.Item.owner_id==4).all()
 
-@app. post("/user/pay/item/{title}/{price}/{rate}/{description}", response_model=Shipped)
+@app. post("/user/pay/item/{title}/{price}/{rate}/{description}")
 async def pay(shipped:Shipped, current_user : User = Depends(get_current_active_user), db: Session = Depends(get_db)):
     email= current_user.email
     user_id = current_user.id
     url = "https://api.paystack.co/transaction/initialize"
-    payload = {"email": email, "amount":shipped.rate}
+    payload = {"email": email, "amount":shipped.rate*100}
 
     headers = {"Authorization": "Bearer sk_test_ecb81509f58a30dcdafc38bb05e25365fd97dc22"}
     response = requests. post(url, headers=headers, data=payload)

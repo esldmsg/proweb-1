@@ -23,23 +23,7 @@ const Cart = () => {
     }
     ]);
     
-    // useEffect( () => {
-    //     const requestOptions ={
-    //         method: "GET",
-    //         headers:{
-    //             "Content-Type":"application/json",
-    //             Authorization: "Bearer " + token,
-    //         },
-    //     };
-    //     fetch('http://localhost:8000/items/?skip=0&limit=100', requestOptions)
-    //        .then(resp => {
-    //            console.log(resp)
-    //            return resp.json();
-    //     }).then(results => {
-    //         console.log(results)
-    //         setCarts([...results] )
-    //     })
-    // }, [])
+    
     useEffect( () => {    
      const getCart = async () => {
         const requestOptions = {
@@ -113,7 +97,6 @@ const Cart = () => {
             headers:{
                 "Content-Type":"application/json",
                 Authorization: "Bearer " + token,
-                "Access-Control-Allow-Origin": "*",
                 'cache-control':'no-cache',
             },
             body: JSON.stringify({
