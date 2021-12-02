@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from typing import List, Optional
-from fastapi import Depends, FastAPI, HTTPException, status, File, UploadFile, Request, Response
+from fastapi import Depends, FastAPI, HTTPException, status, File, UploadFile, Request, Response, Form
 from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
@@ -16,6 +16,8 @@ import shutil
 import httpx
 import asyncio
 import requests
+import os
+from twilio.rest import Client
 models.Base.metadata.create_all(bind=engine)
 
 
@@ -45,7 +47,9 @@ SECRET_KEY = "dd2750f47f3ea7f68bd4c73a33739d2c11ed41a43771061d79e8413babed160a"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
-
+account_sid = "ACb8bbe9b0b3be5ada128f8ff15ab81602"
+auth_token = "b8ae19cfc411454014b60be19b4951b0"
+client = Client(account_sid, auth_token)
 
 class Item(BaseModel):
     id:Optional[int] = None
@@ -156,7 +160,7 @@ async def payment( current_user: User = Depends(get_current_active_user)):
     return current_user
 
 @app.post("/signUp/{username}/{email}/{password}")
-def create_user(username, email, password,db: Session = Depends(get_db)):
+def create_user(  email, username,password, db: Session = Depends(get_db)):
     db_user = db.query(models.User).filter(models.User.email==email).first()
     if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")
@@ -294,12 +298,18 @@ async def pay(shipped:Shipped, current_user : User = Depends(get_current_active_
     name = current_user.username
     user_id = current_user.id
     url = "https://api.paystack.co/transaction/initialize"
-    payload = {"metadata.sfull_name":name, "email": email, "amount":shipped.rate*100}
+    payload = {"email": email, "amount":shipped.rate*100}
     # "custom_fields":{"fullname":name,"productName":shipped.title, "productDescription":shipped.description,  "Image":shipped.url}
     # metadata={"name":name, "productName":shipped.title, "productDescription":shipped.description, "Image":shipped.url}
     headers = {"Authorization": "Bearer sk_test_ecb81509f58a30dcdafc38bb05e25365fd97dc22"}
     response = requests. post(url, headers=headers, data=payload)
     if response.status_code == 200:
+        message = client.messages \
+                .create(
+                     body=f"{name } with email {email } bought {shipped.description} {shipped.title} at the rate of {shipped.rate} please confirm payment before placing order",
+                     from_='+14176076477',
+                     to='+2348164836050'
+                 )
         new_item = models.Shipped(title=shipped.title, price=shipped.price, rate=shipped.rate, description= shipped.description, url= shipped.url, owner_id=user_id)
         db.add(new_item)
         db.commit()
@@ -312,6 +322,7 @@ async def pay(shipped:Shipped, current_user : User = Depends(get_current_active_
 
 @app.get("/callback")
 def callback( trxref, reference, db: Session = Depends(get_db)):
+    
     url = "https://api.paystack.co/transaction/verify/:{reference}"
     headers = {"Authorization": "Bearer sk_test_ecb81509f58a30dcdafc38bb05e25365fd97dc22"}
     response = requests.get(url, headers = headers)

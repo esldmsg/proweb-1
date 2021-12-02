@@ -27,9 +27,9 @@ const Register = () => {
             headers: {
                 "content-Type": "application/json"
             },
-            body: JSON.stringify({username: username, email: email, password:password }),
+            body: JSON.stringify({username:username, email:email, password:password }),
         };
-        const response = await fetch ("http://localhost:8000/signUp/{username}/{email}/{password}", requestOptions);
+        const response = await fetch (`http://localhost:8000/signUp/${username}/${email}/${password}`, requestOptions);
         const data = await response.json()
         console.log(data)
         if(!response.ok){
