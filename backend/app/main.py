@@ -30,7 +30,7 @@ origins = [
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -294,7 +294,9 @@ async def pay(shipped:Shipped, current_user : User = Depends(get_current_active_
     name = current_user.username
     user_id = current_user.id
     url = "https://api.paystack.co/transaction/initialize"
-    payload = {"email": email, "amount":shipped.rate*100}
+    payload = {"metadata.sfull_name":name, "email": email, "amount":shipped.rate*100}
+    # "custom_fields":{"fullname":name,"productName":shipped.title, "productDescription":shipped.description,  "Image":shipped.url}
+    # metadata={"name":name, "productName":shipped.title, "productDescription":shipped.description, "Image":shipped.url}
     headers = {"Authorization": "Bearer sk_test_ecb81509f58a30dcdafc38bb05e25365fd97dc22"}
     response = requests. post(url, headers=headers, data=payload)
     if response.status_code == 200:
@@ -307,6 +309,14 @@ async def pay(shipped:Shipped, current_user : User = Depends(get_current_active_
 
     else:
          raise HTTPException(status_code=400, detail="Try Again Something Went Wrong")
+
+@app.get("/callback")
+def callback( trxref, reference, db: Session = Depends(get_db)):
+    url = "https://api.paystack.co/transaction/verify/:{reference}"
+    headers = {"Authorization": "Bearer sk_test_ecb81509f58a30dcdafc38bb05e25365fd97dc22"}
+    response = requests.get(url, headers = headers)
+    json_Response = response.json()
+    return (json_Response)
 
 @app.get("/shipping/", response_model=List[Shipped])
 def read_shipped_items(skip: int = 0, limit: int = 100, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
@@ -322,7 +332,7 @@ def read_shipped_items(skip: int = 0, limit: int = 100, db: Session = Depends(ge
 
 
 @app.delete("/shipping/delete/{shipped_id}")
-def delete_shipped_item_for_user( item_id:int, db: Session = Depends(get_db),  current_user: User = Depends(get_current_active_user)):
+def delete_shipped_item_for_user( shipped_id:int, db: Session = Depends(get_db),  current_user: User = Depends(get_current_active_user)):
     user_id = current_user.id
     db_check_for_shipped_id = db.query(models.Shipped).filter(models.Shipped.id==shipped_id).first()
     if db_check_for_shipped_id is None :
@@ -336,7 +346,7 @@ def delete_shipped_item_for_user( item_id:int, db: Session = Depends(get_db),  c
             db.delete( db_item_to_be_deleted)
             db.commit()
             return {
-                "message":f" item with item_id {shipped_id} deleted"
+                "message":f" item with shipped_id {shipped_id} deleted"
             }
         else:
               raise HTTPException(status_code=400, detail="You are not ment to delete this item")
