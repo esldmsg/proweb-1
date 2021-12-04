@@ -34,7 +34,6 @@ function App() {
 
               </Nav> 
               <Nav className="mr-auto">            
-                <Badge className="mt-2" variant="white" style={{color:'white'}}>Products In stock {products.length} </Badge>
                 <Nav.Link href="Shipped" style={{color:'white'}}>Shipped</Nav.Link>
                 <Nav.Link href="/" onClick={logout} style={{color:'white'}}>Logout</Nav.Link>
 

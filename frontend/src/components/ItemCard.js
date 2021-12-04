@@ -2,7 +2,7 @@ import react, {useContext, useState} from 'react';
 import { Card,Button } from 'react-bootstrap'
 import {UserContext} from '../UserContext';
 import ErrorMessage from './ErrorMessage';
-
+import SuccessMessage from './SuccessMessage';
 
 
 
@@ -11,7 +11,7 @@ import ErrorMessage from './ErrorMessage';
 const ItemCard = (props) => {
     const [token] = useContext(UserContext);
     const [errorMessage, setErrorMessage] = useState("");
-
+    const [successMessage, setSuccessMessage] = useState("");
 
     const addItem = async (title, price, url, description) => {
         console.log(title, url, description, price  )
@@ -34,16 +34,18 @@ const ItemCard = (props) => {
         const data = await response.json()
         console.log(data)
         if(!response.ok){
-            setErrorMessage(data.detail)
+            setErrorMessage("Something Went Wrong")
         }else{
-            setErrorMessage("Item successfully Added");
+            setSuccessMessage("Item successfully Added To Cart");
      
         }
 
-    }
+    };;
 
     return(
         <div className="col-11 col-md-6 col-lg-3 mx-0 mb-4">
+         <ErrorMessage message={errorMessage}/>
+        <SuccessMessage message={successMessage}/>
             <Card style={{ width: '18rem', p:0, overflow:'hidden', h:'100 shadow'}}>
                     <Card.Img style={{height:"200px"}} variant="top" src={props.url} />
                     <Card.Body>

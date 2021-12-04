@@ -2,11 +2,13 @@ import react, { useState } from 'react'
 import { Form, Button, Card, Container, Row, Col} from 'react-bootstrap'
 import AdminStore from './AdminStore'
 import ErrorMessage from './ErrorMessage'
+import SuccessMessage from './SuccessMessage'
 import S3 from 'react-aws-s3';
 
 
 
 const Admin = () => {
+    const [successMessage, setSuccessMessage] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
     const [productInfo, setProductInfo] = useState(
         {
@@ -64,9 +66,9 @@ const Admin = () => {
         const response = await fetch ("http://localhost:8000/admin/items/", requestOptions);
         console.log(response)
         if(!response.ok){
-            setErrorMessage("somethin went wrong")
+            setErrorMessage("Somethin Went Wrong")
         }else{
-            setErrorMessage("Items successfully Added");
+            setSuccessMessage("Items successfully Added");
             setProductInfo({
                 title: "",
                 description: "",
@@ -105,6 +107,7 @@ const Admin = () => {
                         Add to Store
                     </Button>
                     <ErrorMessage message={errorMessage}/>
+                    <SuccessMessage message={successMessage}/>
                 </Form>
             </Card.Body>
         </Card>

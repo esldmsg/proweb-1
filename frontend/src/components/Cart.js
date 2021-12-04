@@ -2,8 +2,8 @@ import react, {useEffect, useContext, useState} from 'react'
 import { Table, Container, Row, Col } from 'react-bootstrap'
 import './cart.css'
 import {UserContext} from '../UserContext';
-// import { PaystackConsumer } from 'react-paystack';
 import ErrorMessage from './ErrorMessage';
+import SuccessMessage from './SuccessMessage';
 import{ Redirect} from "react-router-dom"
 
 
@@ -13,6 +13,8 @@ const Cart = () => {
     const[token]  = useContext(UserContext);
     const [totalItem, setTotalItem] = useState(0);
     const [errorMessage, setErrorMessage] = useState("");
+    const [successMessage, setSuccessMessage] = useState("");
+
     const [carts, setCarts]  =  useState([
        { id:"",
         title:"",
@@ -35,7 +37,7 @@ const Cart = () => {
         };
             const response = await fetch('http://localhost:8000/items/?skip=0&limit=100', requestOptions);
             if(!response.ok){
-                setErrorMessage("Could not ge Cart");
+                setErrorMessage("Session time out please re-login or Cart is empty")
             }else{
                const data = await response.json();
                setCarts([...data])
@@ -54,11 +56,11 @@ const Cart = () => {
         const response = await fetch ("http://localhost:8000/delete/" + id, requestOptions);
         console.log(response)
         if(!response.ok){
-            setErrorMessage("somethin went wrong")
+            setErrorMessage("Something Went Wrong Try Again")
         }else{
             const filteredcarts = carts.filter((carts) => carts.id !== id);
             setCarts([...filteredcarts])
-            setErrorMessage("Items successfully Deleted");
+            setSuccessMessage("Item successfully Deleted");
         }
 
     }
@@ -92,34 +94,40 @@ const Cart = () => {
 
      const pay = async (id, title, price, rate, description, url) => {
         console.log(rate)
-        const requestOptions = {
-            method: "POST",
-            headers:{
-                "Content-Type":"application/json",
-                Authorization: "Bearer " + token,
-                'cache-control':'no-cache',
-            },
-            body: JSON.stringify({
-                title,
-                price,
-                rate,
-                description,
-                url,
-
-              
-             }),
-         
-        };
-        const response = await fetch ("http://localhost:8000/user/pay/item/{title}/{price}/{rate}/{description}/{url}", requestOptions);
-        const data = await response.json() 
-        console.log(data)
-        if(!response.ok){
-            setErrorMessage(data.detail)
-        }else{
-            window.location.href = data
-            setErrorMessage("You are ready to pay")
+        if (rate < 1 ) {
+            setErrorMessage("Specify the amount you want to buy under the rate heading by pressing the plus/minus button")
+        } else{
+            setErrorMessage("")
+            const requestOptions = {
+                method: "POST",
+                headers:{
+                    "Content-Type":"application/json",
+                    Authorization: "Bearer " + token,
+                    'cache-control':'no-cache',
+                },
+                body: JSON.stringify({
+                    title,
+                    price,
+                    rate,
+                    description,
+                    url,
+    
+                  
+                 }),
+             
+            };
+            const response = await fetch ("http://localhost:8000/user/pay/item/{title}/{price}/{rate}/{description}/{url}", requestOptions);
+            const data = await response.json() 
+            console.log(data)
+            if(!response.ok){
+                setErrorMessage("Something Went Wrong")
+            }else{
+                window.location.href = data
+                setSuccessMessage("PAYMENT IN PROGRESS")
+        }
     }
-}
+        }
+       
         // const shipped = carts.filter(carts => carts.rate > 1);
         // console.log([...shipped]);
        
@@ -134,7 +142,7 @@ const Cart = () => {
                 
                 <Col>
                 <ErrorMessage message={errorMessage}/>
-                
+                <SuccessMessage message={successMessage}/>
                     <Table striped bordered hover>
                     
                         <thead>

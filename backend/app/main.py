@@ -160,7 +160,7 @@ async def payment( current_user: User = Depends(get_current_active_user)):
     return current_user
 
 @app.post("/signUp/{username}/{email}/{password}")
-def create_user(  email, username,password, db: Session = Depends(get_db)):
+def create_user(username, email, password, db: Session = Depends(get_db)):
     db_user = db.query(models.User).filter(models.User.email==email).first()
     if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")

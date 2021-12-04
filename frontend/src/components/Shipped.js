@@ -3,6 +3,7 @@ import { Table, Container, Row, Col } from 'react-bootstrap'
 import './cart.css'
 import {UserContext} from '../UserContext';
 import ErrorMessage from './ErrorMessage';
+import SuccessMessage from './SuccessMessage';
 import{ Redirect} from "react-router-dom"
 
 
@@ -10,6 +11,7 @@ import{ Redirect} from "react-router-dom"
 
 const Shipped = () => {
     const[token]  = useContext(UserContext);
+    const [successMessage, setSuccessMessage] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
     const [ships, setShips]  =  useState([
        { id:"",
@@ -33,7 +35,7 @@ const Shipped = () => {
         };
             const response = await fetch('http://localhost:8000/shipping/?skip=0&limit=100', requestOptions);
             if(!response.ok){
-                setErrorMessage("Could not ge Ship");
+                setErrorMessage("Session time out please re-login or Cart is empty")
             }else{
                const data = await response.json();
                setShips([...data])
@@ -52,11 +54,12 @@ const Shipped = () => {
         const response = await fetch ("http://localhost:8000/shipping/delete/" + id, requestOptions);
         console.log(response)
         if(!response.ok){
-            setErrorMessage("somethin went wrong")
+            setErrorMessage("Somethin Went Wrong Try Again")
         }else{
             const filteredships = ships.filter((ships) => ships.id !== id);
             setShips([...filteredships])
-            setErrorMessage("Items successfully Deleted");
+            alert("Thank you for patronising us")
+            setSuccessMessage("Items successfully Deleted");
         }
 
     }
@@ -71,7 +74,7 @@ const Shipped = () => {
                 
                 <Col>
                 <ErrorMessage message={errorMessage}/>
-                
+                <SuccessMessage message={successMessage}/>
                     <Table striped bordered hover>
                     
                         <thead>

@@ -3,10 +3,11 @@ import { Table, Container, Row, Col } from 'react-bootstrap'
 import {ProductContext} from '../ProductContext';
 import AdminRow from './AdminRow';
 import ErrorMessage from './ErrorMessage'
-
+import SuccessMessage from './SuccessMessage'
 
 
 const AdminStore = () => {
+    const [successMessage, setSuccessMessage] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
     const [products, setProducts]  =  useContext(ProductContext)
 
@@ -38,40 +39,19 @@ const AdminStore = () => {
         }else{
             const filteredProducts = products.data.filter((product) => product.id !== id);
             setProducts({ data: [...filteredProducts] })
-            setErrorMessage("Items successfully Deleted");
+            setSuccessMessage("Items successfully Deleted");
         }
 
     }
 
-// const handleDelete = (id) => {
-//         fetch("http://localhost:8000/delete/" + id, {
-//             method: "DELETE",
-//             headers: {
-//                 accept: 'application/json'
-//             }
-//         })
-//             .then(resp => {
-//             return resp.json()
-//             })
-//             .then(result => {
-//                 // console.log(result)
-//                 if (result.status === 'ok') {
-//                     const filteredProducts = products.data.filter((product) => product.id !== id);
-//                     setProducts({ data: [...filteredProducts] })
-//                     alert("Product deleted")
-//                 } else {
-//                     const filteredProducts = products.data.filter((product) => product.id !== id);
-//                     setProducts({ data: [...filteredProducts] })
-//                     alert("Product deletion failed...")
-//             }
-//         })
-//     }
+
 
       return(
             
             
                 <div>
                 <ErrorMessage message={errorMessage}/>
+                <SuccessMessage message={successMessage}/>
                     <Table striped bordered hover>
                         <thead>
                             <tr>
