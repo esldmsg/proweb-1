@@ -5,7 +5,7 @@ from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 from typing import List, Optional
 from fastapi.responses import RedirectResponse
 from jose import JWTError, jwt
@@ -87,8 +87,17 @@ def get_db():
 class User(BaseModel):
     id: Optional[int] = None
     username: str
-    email: str
+    email: EmailStr
     password:str
+    is_active:bool
+    class Config:
+        orm_mode = True
+
+class Users(BaseModel):
+    id: Optional[int] = None
+    username: str
+    email: EmailStr
+    fake_hashed_password:str
     is_active:bool
     class Config:
         orm_mode = True
@@ -160,12 +169,12 @@ async def payment( current_user: User = Depends(get_current_active_user)):
     return current_user
 
 @app.post("/signUp/{username}/{email}/{password}")
-def create_user(username, email, password, db: Session = Depends(get_db)):
-    db_user = db.query(models.User).filter(models.User.email==email).first()
+def create_user(user:User, db: Session = Depends(get_db)):
+    db_user = db.query(models.User).filter(models.User.email==user.email).first()
     if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")
-    fake_hashed_password = get_password_hash(password)
-    new_user = models.User(email=email, username=username, hashed_password=fake_hashed_password)
+    fake_hashed_password = get_password_hash(user.password)
+    new_user = models.User(email=user.email, username=user.username, hashed_password=fake_hashed_password)
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
@@ -180,14 +189,14 @@ async def signIn_user(form_data:OAuth2PasswordRequestForm = Depends(),db: Sessio
     if not user :
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=f"Incorrect username",
+            detail=f"Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
             )
     password = form_data.password
     if not verify_password(password, user.hashed_password) :
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=f"Incorrect password",
+            detail=f"Incorrect password or  password ",
             headers={"WWW-Authenticate": "Bearer"},
             )
             
