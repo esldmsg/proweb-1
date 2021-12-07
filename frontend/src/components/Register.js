@@ -27,12 +27,13 @@ const Register = () => {
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded"
             },
-            body: JSON.stringify(
-                `grant_type=&username=${username}&email=${email}&password=${password}&scope=&client_id=&client_secret=`
-
-            ),
+            body: JSON.stringify({
+                username:username,
+                email:email,
+                password:password
+            }),
         };
-        const response = await fetch ("http://localhost:8000/signUp/{username}/{email}/{password}", requestOptions);
+        const response = await fetch (`http://localhost:8000/signUp/${username}/${email}/${password}`, requestOptions);
         const data = await response.json()
         console.log(data)
         if(!response.ok){
@@ -47,7 +48,7 @@ const Register = () => {
     }
      const handleSubmit = (e) =>{
          e.preventDefault();
-         if (password == confirm_password && password.length > 5){
+         if (password == confirm_password && password.length > 3){
              submitRegisration();
          }else{
              setErrorMessage(

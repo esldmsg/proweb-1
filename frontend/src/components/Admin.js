@@ -1,13 +1,15 @@
-import react, { useState } from 'react'
+import react, {useContext, useState } from 'react'
 import { Form, Button, Card, Container, Row, Col} from 'react-bootstrap'
 import AdminStore from './AdminStore'
 import ErrorMessage from './ErrorMessage'
 import SuccessMessage from './SuccessMessage'
 import S3 from 'react-aws-s3';
+import {UserContext} from '../UserContext';
 
 
 
 const Admin = () => {
+    const [token] = useContext(UserContext);
     const [successMessage, setSuccessMessage] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
     const [productInfo, setProductInfo] = useState(
@@ -52,7 +54,8 @@ const Admin = () => {
         const requestOptions = {
             method: "POST",
             headers: {
-                "content-Type": "application/json"
+                "content-Type": "application/json",
+                Authorization: "Bearer " + token,
             },
             body: JSON.stringify({
                    
@@ -64,9 +67,10 @@ const Admin = () => {
         }
 
         const response = await fetch ("http://localhost:8000/admin/items/", requestOptions);
-        console.log(response)
+        const data = await response.json()
+        console.log(data.detail)
         if(!response.ok){
-            setErrorMessage("Somethin Went Wrong")
+            setErrorMessage(data.detail)
         }else{
             setSuccessMessage("Items successfully Added");
             setProductInfo({

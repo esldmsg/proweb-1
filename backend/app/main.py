@@ -5,7 +5,7 @@ from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel
 from typing import List, Optional
 from fastapi.responses import RedirectResponse
 from jose import JWTError, jwt
@@ -87,7 +87,7 @@ def get_db():
 class User(BaseModel):
     id: Optional[int] = None
     username: str
-    email: EmailStr
+    email: str
     password:str
     is_active:bool
     class Config:
@@ -96,7 +96,7 @@ class User(BaseModel):
 class Users(BaseModel):
     id: Optional[int] = None
     username: str
-    email: EmailStr
+    email: str
     fake_hashed_password:str
     is_active:bool
     class Config:
@@ -169,12 +169,12 @@ async def payment( current_user: User = Depends(get_current_active_user)):
     return current_user
 
 @app.post("/signUp/{username}/{email}/{password}")
-def create_user(user:User, db: Session = Depends(get_db)):
-    db_user = db.query(models.User).filter(models.User.email==user.email).first()
+def create_user(username, email, password, db: Session = Depends(get_db)):
+    db_user = db.query(models.User).filter(models.User.email==email).first()
     if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")
-    fake_hashed_password = get_password_hash(user.password)
-    new_user = models.User(email=user.email, username=user.username, hashed_password=fake_hashed_password)
+    fake_hashed_password = get_password_hash(password)
+    new_user = models.User(email=email, username=username, hashed_password=fake_hashed_password)
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
@@ -263,43 +263,53 @@ def read_items(skip: int = 0, limit: int = 100, db: Session = Depends(get_db), c
     
 
 @app.post("/admin/items/", response_model = Item)
-def create_item_for_all_user( item:Item, db: Session = Depends(get_db)):
-    new_item = models.Item(title=item.title, price=item.price, url=item.url, description=item.description, owner_id=4)
-    db.add(new_item)
-    db.commit()
-    db.refresh(new_item)
-    return new_item
+def create_item_for_all_user( item:Item, db: Session = Depends(get_db),  current_user: User = Depends(get_current_active_user)):
+    user = db.query(models.User).filter(models.User.username==current_user.username).first()
+    if user.username == "admin":
+        user_id =  current_user.id
+        new_item = models.Item(title=item.title, price=item.price, url=item.url, description=item.description, owner_id=user_id)
+        db.add(new_item)
+        db.commit()
+        db.refresh(new_item)
+        return new_item
+    else:
+       raise HTTPException(status_code=400, detail="You are not an Admin")
 
+    
 
 
 @app.delete("/delete/admin/{item_id}")
-def delete_item_for_all(
-     item_id:int, db: Session = Depends(get_db)):
+def delete_item_for_all(item_id:int, db: Session = Depends(get_db),  current_user: User = Depends(get_current_active_user)):
+    user = db.query(models.User).filter(models.User.username==current_user.username).first()
+    if user.username == "admin":
+            user_id =  current_user.id
+            db_check_for_item_id = db.query(models.Item).filter(models.Item.id==item_id).first()
+            if db_check_for_item_id is None :
+                raise HTTPException(status_code=400, detail="item does not exist")
 
-    db_check_for_item_id = db.query(models.Item).filter(models.Item.id==item_id).first()
-    if db_check_for_item_id is None :
-        raise HTTPException(status_code=400, detail="item does not exist")
-
-    db_check_for_user_id = db.query(models.User.id).filter(models.User.id==4).first()
-    if db_check_for_user_id :
-        db_check_for_owner_id = db.query(models.Item.owner_id).filter(models.Item.id==item_id).first()
-        if  db_check_for_user_id == db_check_for_owner_id :
-            db_item_to_be_deleted = db.query(models.Item).filter(models.Item.id==item_id).first()
-            db.delete( db_item_to_be_deleted)
-            db.commit()
-            return {
-                "message":f" item with item_id {item_id} deleted"
-            }
-        else:
-              raise HTTPException(status_code=400, detail="You are not ment to delete this item")
-    else :  return {
-                "message":f" user does not exist"
-            }
+            db_check_for_user_id = db.query(models.User.id).filter(models.User.id==user_id).first()
+            if db_check_for_user_id :
+                db_check_for_owner_id = db.query(models.Item.owner_id).filter(models.Item.id==item_id).first()
+                if  db_check_for_user_id == db_check_for_owner_id :
+                    db_item_to_be_deleted = db.query(models.Item).filter(models.Item.id==item_id).first()
+                    db.delete( db_item_to_be_deleted)
+                    db.commit()
+                    return {
+                        "message":f" item with item_id {item_id} deleted"
+                    }
+                else:
+                    raise HTTPException(status_code=400, detail="You are not ment to delete this item")
+            else :  return {
+                        "message":f" user does not exist"
+                    }
+    else:
+       raise HTTPException(status_code=400, detail="You are not an Admin")
 
 
 @app.get("/allitems/", response_model=List[Item])
 def read_items_for_all_user(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-   return db.query(models.Item).filter(models.Item.owner_id==4).all()
+    user = db.query(models.User).filter(models.User.username=="admin").first()
+    return db.query(models.Item).filter(models.Item.owner_id==user.id).all()
 
 @app. post("/user/pay/item/{title}/{price}/{rate}/{description}/{url}")
 async def pay(shipped:Shipped, current_user : User = Depends(get_current_active_user), db: Session = Depends(get_db)):

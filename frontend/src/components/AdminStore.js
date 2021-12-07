@@ -4,9 +4,11 @@ import {ProductContext} from '../ProductContext';
 import AdminRow from './AdminRow';
 import ErrorMessage from './ErrorMessage'
 import SuccessMessage from './SuccessMessage'
+import {UserContext} from '../UserContext';
 
 
 const AdminStore = () => {
+    const [token] = useContext(UserContext);
     const [successMessage, setSuccessMessage] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
     const [products, setProducts]  =  useContext(ProductContext)
@@ -29,13 +31,15 @@ const AdminStore = () => {
         const requestOptions = {
             method: "DELETE",
             headers: {
-                "content-Type": "application/json"
+                "content-Type": "application/json",
+                Authorization: "Bearer " + token,
             },
         };
         const response = await fetch ("http://localhost:8000/delete/admin/" + id, requestOptions);
-        console.log(response)
+        const data = await response.json()
+        console.log(data.detail)
         if(!response.ok){
-            setErrorMessage("somethin went wrong")
+            setErrorMessage(data.detail)
         }else{
             const filteredProducts = products.data.filter((product) => product.id !== id);
             setProducts({ data: [...filteredProducts] })
