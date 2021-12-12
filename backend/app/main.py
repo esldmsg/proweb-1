@@ -43,7 +43,7 @@ app.add_middleware(
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
-SECRET_KEY = "dd2750f47f3ea7f68bd4c73a33739d2c11ed41a43771061d79e8413babed160a"
+SECRET_KEY = os.environ.get('SECRET_KEY')
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
