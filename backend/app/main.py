@@ -1,3 +1,4 @@
+import os
 from datetime import datetime, timedelta
 from typing import List, Optional
 from fastapi import Depends, FastAPI, HTTPException, status, File, UploadFile, Request, Response, Form
@@ -16,7 +17,6 @@ import shutil
 import httpx
 import asyncio
 import requests
-import os
 from twilio.rest import Client
 models.Base.metadata.create_all(bind=engine)
 
@@ -47,8 +47,8 @@ SECRET_KEY = "dd2750f47f3ea7f68bd4c73a33739d2c11ed41a43771061d79e8413babed160a"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
-account_sid = "ACb8bbe9b0b3be5ada128f8ff15ab81602"
-auth_token = "b8ae19cfc411454014b60be19b4951b0"
+account_sid = os.environ.get('TWILIOACCOUNTSID')
+auth_token = os.environ.get('TWILIOAUTH')
 client = Client(account_sid, auth_token)
 
 class Item(BaseModel):
@@ -320,7 +320,7 @@ async def pay(shipped:Shipped, current_user : User = Depends(get_current_active_
     payload = {"email": email, "amount":shipped.rate*100}
     # "custom_fields":{"fullname":name,"productName":shipped.title, "productDescription":shipped.description,  "Image":shipped.url}
     # metadata={"name":name, "productName":shipped.title, "productDescription":shipped.description, "Image":shipped.url}
-    headers = {"Authorization": "Bearer sk_test_ecb81509f58a30dcdafc38bb05e25365fd97dc22"}
+    headers = {"Authorization":os.environ.get('PAYSTACK_AUTHORIZATION_KEY')}
     response = requests. post(url, headers=headers, data=payload)
     if response.status_code == 200:
         message = client.messages \

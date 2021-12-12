@@ -31,8 +31,8 @@ const Admin = () => {
         bucketName:"storedev",
         dirName:"Image",
         region:"us-west-2",
-        accessKeyId:"AKIATYQCI4ZNQB2HRXNW",
-        secretAccessKey:"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",
+        accessKeyId:process.env.REACT_APP_ACCESSKEYID,
+        secretAccessKey:process.env.REACT_APP_SECRETACCESSKEY,
         s3Url:""
     }
 
