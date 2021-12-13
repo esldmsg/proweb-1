@@ -15,7 +15,7 @@ if uri.startswith("postgres://"):
 
 
 engine = create_engine(
-    SQLALCHEMY_DATABASE_URL, echo= True
+    uri, echo= True
 )
 SessionLocal = sessionmaker(bind=engine)
 
