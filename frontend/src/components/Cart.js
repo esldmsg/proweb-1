@@ -136,22 +136,22 @@ const Cart = () => {
         }
        
       return(
-          <div>
+         
             <Container>
             <Row>
                 
                 <Col>
                 <ErrorMessage message={errorMessage}/>
                 <SuccessMessage message={successMessage}/>
-                    <Table striped bordered hover>
+                    <Table striped bordered hover size="sm">
                     
                         <thead>
                             
                             <tr>
                                 <th>Image</th>
-                                <th>Product Name</th>
-                                <th>Product Description</th>
-                                <th>Unit Price</th>
+                                <th>Name</th>
+                                <th>Description</th>
+                                <th>Price</th>
                                 <th>Rate</th>    
                             </tr>
                         </thead>
@@ -159,16 +159,16 @@ const Cart = () => {
                         {carts.map((cart, index) => (
                                <tr>
                                    
-                                   <td ><img style={{height:"100px",width:"100px"}} src={cart.url}/></td>
+                                   <td ><img style={{height:"50px",width:"50px"}} src={cart.url}/></td>
                                    <td>{cart.title}</td>
                                    <td>{cart.description}</td>
                                    <td>{cart.price}</td>
                                    <td>{cart.rate}</td>
                                    <td>
-                                   <button onClick={() => handleQuantityIncrease(index, cart.price, cart.rate)}  className = "btn btn-outline-info btn-sm mr-2">+</button>
-                                   <button onClick={() => handleQuantityDecrease(index, cart.price, cart.rate)}  className = "btn btn-outline-info btn-sm mr-2">-</button>
-                                   <button onClick={() => handleDelete(cart.id)}  className = "btn btn-outline-danger btn-sm mr-2">Delete</button> 
-                                   <button  key={index} onClick={() => pay(cart.id,cart.title,cart.price, cart.rate, cart.description, cart.url)} className = "btn btn-outline-info btn-sm mr-2"> Pay </button>
+                                   <button onClick={() => handleQuantityIncrease(index, cart.price, cart.rate)} style={{backgroundColor:"blue"}} className = "btn btn-outline-info btn-sm mr-2">+</button>
+                                   <button onClick={() => handleQuantityDecrease(index, cart.price, cart.rate)}  style={{backgroundColor:"blue"}} className = "btn btn-outline-info btn-sm mr-2">-</button>
+                                   <button onClick={() => handleDelete(cart.id)} className = "btn btn-outline-danger btn-sm mr-2">Delete</button> 
+                                   <button  key={index} onClick={() => pay(cart.id,cart.title,cart.price, cart.rate, cart.description, cart.url)}  style={{backgroundColor:"green"}}className = "btn btn-outline-info btn-sm mr-2"> Pay </button>
                                   </td>
 
                                </tr>
@@ -183,7 +183,7 @@ const Cart = () => {
                 <h4>TOTAL: {totalItem} </h4> 
             </div>
             </Container>
-            </div>
+            
 
          
       );

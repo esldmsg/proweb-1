@@ -14,8 +14,10 @@ class User(Base):
 
 
     id = Column(Integer, primary_key=True, index=True)
-    email = Column(String, unique=True, index=True)
-    username = Column(String, unique=True, index=True)
+    email = Column(String, unique=True)
+    number = Column(String, unique=True)
+    address = Column(String, unique=True)
+    username = Column(String, unique=True)
     hashed_password = Column(String, unique=True)
     is_active = Column(Boolean, default=False)
 
@@ -32,8 +34,8 @@ class Item(Base):
 
 
     id = Column(Integer, primary_key=True, index=True)
-    title = Column(String, index=True)
-    description = Column(String, index=True)
+    title = Column(String)
+    description = Column(String)
     price = Column(Integer)
     rate = Column(Integer)
     url = Column(URLType)
@@ -50,8 +52,8 @@ class Shipped(Base):
 
 
     id = Column(Integer, primary_key=True, index=True)
-    title = Column(String, index=True)
-    description = Column(String, index=True)
+    title = Column(String)
+    description = Column(String)
     price = Column(Integer)
     rate = Column(Integer)
     url = Column(URLType)

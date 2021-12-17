@@ -88,6 +88,8 @@ class User(BaseModel):
     id: Optional[int] = None
     username: str
     email: str
+    number:int
+    address:str
     password:str
     is_active:bool
     class Config:
@@ -168,13 +170,13 @@ async def get_current_active_user(current_user: User = Depends(get_current_user)
 async def payment( current_user: User = Depends(get_current_active_user)):
     return current_user
 
-@app.post("/signUp/{username}/{email}/{password}")
-def create_user(username, email, password, db: Session = Depends(get_db)):
+@app.post("/signUp/{username}/{email}/{number}/{address}/{password}")
+def create_user(username, email, number, address, password, db: Session = Depends(get_db)):
     db_user = db.query(models.User).filter(models.User.email==email).first()
     if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")
     fake_hashed_password = get_password_hash(password)
-    new_user = models.User(email=email, username=username, hashed_password=fake_hashed_password)
+    new_user = models.User(email=email, username=username, number=number, address=address, hashed_password=fake_hashed_password)
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
@@ -315,6 +317,8 @@ def read_items_for_all_user(skip: int = 0, limit: int = 100, db: Session = Depen
 async def pay(shipped:Shipped, current_user : User = Depends(get_current_active_user), db: Session = Depends(get_db)):
     email= current_user.email
     name = current_user.username
+    number = current_user.number
+    address = current_user.address
     user_id = current_user.id
     url = "https://api.paystack.co/transaction/initialize"
     payload = {"email": email, "amount":shipped.rate*100}
@@ -325,7 +329,7 @@ async def pay(shipped:Shipped, current_user : User = Depends(get_current_active_
     if response.status_code == 200:
         message = client.messages \
                 .create(
-                     body=f"{name } with email, {email } bought {shipped.description} {shipped.title} at the rate of {shipped.rate} please confirm payment before placing order",
+                     body=f"{name } with email, {email } bought {shipped.description} {shipped.title} at the rate of {shipped.rate} please confirm payment before placing order, {number}, {address}",
                      from_='+14176076477',
                      to='+2348164836050'
                  )

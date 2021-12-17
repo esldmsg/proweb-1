@@ -12,12 +12,16 @@ const Register = () => {
     const [, setToken] = useContext(UserContext);
     const [username, setUsername] = useState("");
     const [email, setEmail] = useState("");
+    const [number, setNumber] = useState("");
+    const [address, setAddress] = useState("");
     const [password, setPassword] = useState("");
     const [confirm_password, setConfirm_password] = useState("");
 
     const cleanFormData = ()=> {
         setUsername("");
         setEmail("");
+        setNumber("");
+        setAddress("");
         setPassword("");
         setConfirm_password("");
     };
@@ -30,10 +34,12 @@ const Register = () => {
             body: JSON.stringify({
                 username:username,
                 email:email,
-                password:password
+                number:number,
+                address:address,
+                password:password,
             }),
         };
-        const response = await fetch (`http://localhost:8000/signUp/${username}/${email}/${password}`, requestOptions);
+        const response = await fetch (`http://localhost:8000/signUp/${username}/${email}/${number}/${address}/${password}`, requestOptions);
         const data = await response.json()
         console.log(data)
         if(!response.ok){
@@ -73,6 +79,13 @@ const Register = () => {
 
                 <label for="email"><b>Email</b></label>
                 <input type="text" value={email} onChange={(e)=>setEmail(e.target.value)} placeholder="Enter Email" name="email" id="email" required/>
+
+                <label for="number"><b>PhoneNumber</b></label>
+                <input type="text" value={number} onChange={(e)=>setNumber(e.target.value)} placeholder="Enter PhoneNumber" name="number" id="number" required/>
+
+                <label for="address"><b>Address</b></label>
+                <input type="text" value={address} onChange={(e)=>setAddress(e.target.value)} placeholder="Enter Address" name="address" id="address" required/>
+
 
                 <label for="psw"><b>Password</b></label>
                 <input type="password" value={password} onChange={(e)=>setPassword(e.target.value)} placeholder="Enter Password" name="password" id="psw" required/>
