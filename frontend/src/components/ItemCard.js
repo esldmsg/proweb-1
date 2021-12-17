@@ -51,7 +51,7 @@ const ItemCard = (props) => {
                     <Card.Body>
                         <Card.Title>{props.title}</Card.Title>
                         <Card.Text>{props.description}</Card.Text>
-                        <Card.Text>{props.price}</Card.Text>
+                        <Card.Text>₦{props.price}</Card.Text>
                         <Button variant="success" onClick={()=>addItem(props.title, props.price, props.url, props.description) }>Add to Cart </Button>
                     </Card.Body>
             </Card>

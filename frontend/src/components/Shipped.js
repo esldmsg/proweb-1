@@ -93,7 +93,7 @@ const Shipped = () => {
                                    <td ><img style={{height:"100px",width:"100px"}} src={ship.url}/></td>
                                    <td>{ship.title}</td>
                                    <td>{ship.description}</td>
-                                   <td>{ship.rate}</td>
+                                   <td>₦{ship.rate}</td>
                                    <td>
                                    <button  key={index} onClick={() => handleDelete(ship.id)}  className = "btn btn-outline-danger btn-sm mr-2">Confirm Order Recieved</button> 
                                   </td>

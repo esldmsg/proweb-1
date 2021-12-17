@@ -329,7 +329,7 @@ async def pay(shipped:Shipped, current_user : User = Depends(get_current_active_
     if response.status_code == 200:
         message = client.messages \
                 .create(
-                     body=f"{name } with email, {email } bought {shipped.description} {shipped.title} at the rate of {shipped.rate} please confirm payment before placing order, {number}, {address}",
+                     body=f"{name } with email, {email } bought {shipped.description} {shipped.title} at the rate of ₦{shipped.rate} please confirm payment before placing order, {number}, {address}",
                      from_='+14176076477',
                      to='+2348164836050'
                  )
