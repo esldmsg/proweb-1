@@ -331,7 +331,7 @@ async def pay(shipped:Shipped, current_user : User = Depends(get_current_active_
                 .create(
                      body=f"{name } with email, {email } bought {shipped.description} {shipped.title} at the rate of ₦{shipped.rate} please confirm payment before placing order, {number}, {address}",
                      from_='+17622543608',
-                     to='+08034009873'
+                     to='+2348034009873'
                  )
         new_item = models.Shipped(title=shipped.title, price=shipped.price, rate=shipped.rate, description= shipped.description, url= shipped.url, owner_id=user_id)
         db.add(new_item)
